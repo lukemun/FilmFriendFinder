@@ -7,7 +7,7 @@
 <title>FilmFriendFinder HomePage</title>
 </head>
 <body>
-<h1> Film Friend Finder </h1>
+<h1> Film Friend Finder! </h1>
 
 </body>
 </html>
