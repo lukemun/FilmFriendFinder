@@ -13,46 +13,53 @@
 </head>
 
 <body>
-	
-	<h1>Register</h1>
-	<form action="Registration" class="needs-validation" novalidate>
-		<div class="form-group">
-    		<input type="text" class="form-control" id="fname" placeholder="First Name" name="fname" required>
-    		<div class="valid-feedback"></div>
-    		<div class="invalid-feedback">Please enter your first name.</div>
-  		</div>
-  		<div class="form-group">
-    		<input type="text" class="form-control" id="lname" placeholder="Last Name" name="lname" required>
-    		<div class="valid-feedback"></div>
-    		<div class="invalid-feedback">Please enter your last name.</div>
-  		</div>
-  		<div class="form-group">
-    		<input type="text" class="form-control" id="email" placeholder="USC Email" name="email" required>
-    		<div class="valid-feedback"></div>
-    		<div class="invalid-feedback">Please enter your USC email.</div>
-  		</div>
-  		<div class="form-group">
-    		<input type="password" class="form-control" id="pwd" placeholder="Password" name="pwd" required>
-    		<div class="valid-feedback"></div>
-    		<div class="invalid-feedback">Please enter password.</div>
-  		</div>
-  		<div class="form-group">
-    		<input type="password" class="form-control" id="cpwd" placeholder="Confirm Password" name="cpwd" required>
-    		<div class="valid-feedback"></div>
-    		<div class="invalid-feedback">Please confirm your password.</div>
-  		</div>
-  		<div class="form-group">
-    		<input type="text" class="form-control" id="position" placeholder="Position(s) Interested In" name="position" required>
-    		<div class="valid-feedback"></div>
-    		<div class="invalid-feedback">Please enter the position(s) you're interested in.</div>
-  		</div>
-  		<div class="form-group">
-    		<input type="text" class="form-control" id="prefproj" placeholder="Preferred Project(s)" name="prefproj" required>
-    		<div class="valid-feedback"></div>
-    		<div class="invalid-feedback">Please enter your preferred project(s).</div>
-  		</div>
-  		<button type="submit" class="btn btn-primary">Submit</button>
-	</form>
+	<%@ include file="Navbar.jsp" %>
+	<div class="container">
+		<div class="row">
+			<h1 class="col-12 mt-4 mb-4">Register</h1>
+		</div> <!-- .row -->
+	</div> <!-- .container -->
+	<div class="container">
+		<form action="Registration" class="needs-validation" novalidate>
+			<div class="form-group">
+	    		<input type="text" class="form-control" id="fname" placeholder="First Name" name="fname" required>
+	    		<div class="valid-feedback"></div>
+	    		<div class="invalid-feedback">Please enter your first name.</div>
+	  		</div>
+	  		<div class="form-group">
+	    		<input type="text" class="form-control" id="lname" placeholder="Last Name" name="lname" required>
+	    		<div class="valid-feedback"></div>
+	    		<div class="invalid-feedback">Please enter your last name.</div>
+	  		</div>
+	  		<div class="form-group">
+	    		<input type="text" class="form-control" id="email" placeholder="USC Email" name="email" required>
+	    		<div class="valid-feedback"></div>
+	    		<div class="invalid-feedback">Please enter your USC email.</div>
+	  		</div>
+	  		<div class="form-group">
+	    		<input type="password" class="form-control" id="pwd" placeholder="Password" name="pwd" required>
+	    		<div class="valid-feedback"></div>
+	    		<div class="invalid-feedback">Please enter password.</div>
+	  		</div>
+	  		<div class="form-group">
+	    		<input type="password" class="form-control" id="cpwd" placeholder="Confirm Password" name="cpwd" required>
+	    		<div class="valid-feedback"></div>
+	    		<div class="invalid-feedback">Please confirm your password.</div>
+	  		</div>
+	  		<div class="form-group">
+	    		<input type="text" class="form-control" id="position" placeholder="Position(s) Interested In" name="position" required>
+	    		<div class="valid-feedback"></div>
+	    		<div class="invalid-feedback">Please enter the position(s) you're interested in.</div>
+	  		</div>
+	  		<div class="form-group">
+	    		<input type="text" class="form-control" id="prefproj" placeholder="Preferred Project(s)" name="prefproj" required>
+	    		<div class="valid-feedback"></div>
+	    		<div class="invalid-feedback">Please enter your preferred project(s).</div>
+	  		</div>
+	  		<button type="submit" class="btn btn-primary">Submit</button>
+	  		<a href="${header.referer}" role="button" class="btn btn-light">Cancel</a>
+		</form>
+	</div>
 
 <script>
 // Disable form submissions if there are invalid fields
