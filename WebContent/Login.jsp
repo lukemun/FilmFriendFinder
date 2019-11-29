@@ -13,23 +13,30 @@
 </head>
 
 <body>
-
-	<h1>User Login </h1>
-	<form action="Login" class="needs-validation" novalidate>
-		<div class="form-group">
-    		<label for="uname">Username</label>
-    		<input type="text" class="form-control" id="uname" placeholder="username(email)" name="uname" required>
-    		<div class="valid-feedback"></div>
-    		<div class="invalid-feedback">Please enter username.</div>
-  		</div>
-  		<div class="form-group">
-    		<label for="pwd">Password</label>
-    		<input type="password" class="form-control" id="pwd" placeholder="password" name="pswd" required>
-    		<div class="valid-feedback"></div>
-    		<div class="invalid-feedback">Please enter password.</div>
-  		</div>
-  		<button type="submit" class="btn btn-primary">Login</button>
-	</form>
+	<%@ include file="Navbar.jsp" %>
+	<div class="container">
+		<div class="row">
+			<h1 class="col-12 mt-4 mb-4">Login</h1>
+		</div>
+	</div>
+	<div class="container">
+		<form action="Login" class="needs-validation" novalidate>
+			<div class="form-group">
+    			<label for="uname">Username</label>
+    			<input type="text" class="form-control" id="uname" placeholder="username(email)" name="uname" required>
+    			<div class="valid-feedback"></div>
+    			<div class="invalid-feedback">Please enter username.</div>
+  			</div>
+  			<div class="form-group">
+    			<label for="pwd">Password</label>
+    			<input type="password" class="form-control" id="pwd" placeholder="password" name="pswd" required>
+    			<div class="valid-feedback"></div>
+    			<div class="invalid-feedback">Please enter password.</div>
+  			</div>
+  			<button type="submit" class="btn btn-primary">Login</button>
+  			<a href="${header.referer}" role="button" class="btn btn-light">Cancel</a>
+		</form>
+	</div>
 
 <script>
 // Disable form submissions if there are invalid fields
