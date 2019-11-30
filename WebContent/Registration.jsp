@@ -59,6 +59,7 @@
 	  		 <div class="custom-file">
     			<input type="file" class="custom-file-input" id="customFile" required>
     			<label class="custom-file-label" for="customFile">Upload Resume</label>
+		        <div class = "invalid-feedback">Please upload your resume.</div>
   			</div>
 	  		<br></br><button type="submit" class="btn btn-dark">Submit</button>
 	  		<a href="${header.referer}" role="button" class="btn btn-light">Cancel</a>
