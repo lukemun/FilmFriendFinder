@@ -56,7 +56,11 @@
 	    		<div class="valid-feedback"></div>
 	    		<div class="invalid-feedback">Please enter your preferred project(s).</div>
 	  		</div>
-	  		<button type="submit" class="btn btn-dark">Submit</button>
+	  		 <div class="custom-file">
+    			<input type="file" class="custom-file-input" id="customFile" required>
+    			<label class="custom-file-label" for="customFile">Upload Resume</label>
+  			</div>
+	  		<br></br><button type="submit" class="btn btn-dark">Submit</button>
 	  		<a href="${header.referer}" role="button" class="btn btn-light">Cancel</a>
 		</form>
 	</div>
@@ -80,6 +84,13 @@
     });
   }, false);
 })();
+
+//Allows the name of the file to appear on select 
+$(".custom-file-input").on("change", function() {
+	var fileName = $(this).val().split("\\").pop();
+	$(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+
 </script>
 	
 </body>
