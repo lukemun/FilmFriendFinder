@@ -71,7 +71,7 @@
 		<div class="row mt-2">
 			<div class="col-12">
 				<h5>
-					<a class="font-weight-bold text-dark" href="">The Godfather</a>
+					<a class="font-weight-bold text-dark" href="Details.jsp">The Godfather</a>
 				</h5>
 			</div>
 		</div>
@@ -81,10 +81,10 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col">
+			<div class="col-3">
 				<strong>Genre Tags:</strong> Crime, Drama	
 			</div>
-			<div class="col"> 
+			<div class="col-3"> 
 				<strong>Rating:</strong> <span class="stars-container stars-80">★★★★★</span>
 				<div id="stars-value">80</div>
 			</div>
@@ -112,10 +112,10 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col">
+			<div class="col-3">
 				<strong>Genre Tags:</strong> Crime, Drama, Thriller
 			</div>
-			<div class="col"> 
+			<div class="col-3">
 				<strong>Rating:</strong> <span class="stars-container stars-80">★★★★★</span>
 				<div id="stars-value">80</div>
 			</div>
@@ -144,10 +144,10 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col">
+			<div class="col-3">
 				<strong>Genre Tags:</strong> Crime, Action, Thriller	
 			</div>
-			<div class="col"> 
+			<div class="col-3">
 				<strong>Rating:</strong> <span class="stars-container stars-80">★★★★★</span>
 				<div id="stars-value">80</div>
 			</div>
