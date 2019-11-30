@@ -117,7 +117,7 @@
 					<div class="col-12 mb-2">
 						<u>Camera Operator</u>
 						<ul>
-						  <li>Mihcael Chapman</li>
+						  <li>Michael Chapman</li>
 						  <li>Drew Stanley</li>
 						</ul>
 					</div>
