@@ -6,7 +6,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-	<title>Available Film Projects</title>
+	<title>Details</title>
 </head>
 <body>
 	<%@ include file="Navbar.jsp" %>
@@ -36,10 +36,10 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-5">
+					<div class="col-auto">
 						<strong>Genre Tags:</strong> Crime, Drama	
 					</div>
-					<div class="col-3"> 
+					<div class="col-auto">
 						<strong>Rating:</strong> <span class="stars-container stars-80">★★★★★</span>
 						<div id="stars-value">80</div>
 					</div>
