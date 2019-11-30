@@ -102,7 +102,7 @@
 		<div class="row mt-2">
 			<div class="col-12">
 				<h5>
-					<a class="font-weight-bold text-dark" href="">Joker</a>
+					<a class="font-weight-bold text-dark" href="Details.jsp">Joker</a>
 				</h5>
 			</div>
 		</div>
@@ -134,7 +134,7 @@
 		<div class="row mt-2">
 			<div class="col-12">
 				<h5>
-					<a class="font-weight-bold text-dark" href="">John Wick: Chapter 3 - Parabellum</a>
+					<a class="font-weight-bold text-dark" href="Details.jsp">John Wick: Chapter 3 - Parabellum</a>
 				</h5>
 			</div>
 		</div>
