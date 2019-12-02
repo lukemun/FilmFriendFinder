@@ -107,8 +107,8 @@
 			</div> <!-- .row -->
 		
 			<div class="form-group">
-    			<label for="uname">Username</label>
-    			<input type="text" class="form-control" id="uname" name="uname" required>
+    			<label for="uname">Email</label>
+    			<input type="email" class="form-control" id="uname" name="uname" required>
     			<div class="valid-feedback"></div>
     			<div class="invalid-feedback">Please enter email.</div>
   			</div>
