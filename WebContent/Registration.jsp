@@ -32,7 +32,7 @@
 	    		<div class="invalid-feedback">Please enter your last name.</div>
 	  		</div>
 	  		<div class="form-group">
-	    		<input type="text" class="form-control" id="email" placeholder="USC Email" name="email" required>
+	    		<input type="email" class="form-control" id="email" placeholder="USC Email" name="email" required>
 	    		<div class="valid-feedback"></div>
 	    		<div class="invalid-feedback">Please enter your USC email.</div>
 	  		</div>
@@ -76,16 +76,23 @@
           event.preventDefault();
           event.stopPropagation();
         }
+        else if($('#pwd').val() != $('#cpwd').val()) {
+        	event.preventDefault();
+            event.stopPropagation();	
+        }
         form.classList.add('was-validated');
       }, false);
     });
   }, false);
 })();
-//Allows the name of the file to appear on select 
-$(".custom-file-input").on("change", function() {
-	var fileName = $(this).val().split("\\").pop();
-	$(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-});
+
+//Changes color of confirm password field
+$('#pwd, #cpwd').on('keyup', function () {
+	  if ($('#pwd').val() == $('#cpwd').val() && $('#pwd').val().length > 1) {
+	    $('#cpwd').css('background-color', 'white');
+	  } else 
+	    $('#cpwd').css('background-color', '#ff7f7f');
+	});
 </script>
 	
 </body>
