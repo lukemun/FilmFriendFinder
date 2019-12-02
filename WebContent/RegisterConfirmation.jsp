@@ -62,6 +62,8 @@
 					
 					resultsNewUserID = sqlNewUserID.executeQuery();
 					if (resultsNewUserID.next()) {
+						// Need to add genres/positions
+						
 						result = "Accounted created and logged in!";
 						request.getSession().setAttribute("loggedIn", true);
 						request.getSession().setAttribute("activeUser", request.getParameter("email"));

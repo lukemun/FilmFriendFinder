@@ -73,7 +73,7 @@
   			</div>
   			<div class="form-group">
   				<label for="genre">Genre Tags</label>
- 					<select name="genre" id="genre" class="form-control">
+ 					<select name="genre" id="genre" class="form-control" required>
 						<option value="" selected></option>
 						<%
 						while (resultsGenres != null && resultsGenres.next()) {
@@ -90,7 +90,7 @@
   			</div>
   			<div class="form-group">
     			<label for="position">Position(s) You're Looking For</label>
-    			 	<select name="position" id="postion" class="form-control">
+    			 	<select name="position" id="postion" class="form-control" required>
 						<option value="" selected></option>
 						<%
 						while (resultsPositions != null && resultsPositions.next()) {

@@ -5,6 +5,8 @@
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Date" %>
 
 	<%
 	String error = null;
@@ -20,8 +22,11 @@
 		Connection conn = null;
 		PreparedStatement sqlUserID = null;
 		PreparedStatement sqlCreate = null;
+		PreparedStatement sqlProject = null;
+		PreparedStatement sqlGenre = null;
+		PreparedStatement sqlPosition = null;
 		ResultSet resultsUserID = null;
-		ResultSet resultsCreate = null;
+		ResultSet resultsProject = null;
 		
 		try  {
 			Class.forName("com.mysql.jdbc.Driver");  
@@ -39,8 +44,10 @@
 						
 			if (resultsUserID.next()) {
 				int userID = resultsUserID.getInt("userID");
-				java.util.Date date=new java.util.Date();
-				java.sql.Date sqlDate=new java.sql.Date(date.getTime());
+				String pattern = "yyyy-MM-dd";
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+
+				String date = simpleDateFormat.format(new Date());
 				
 				sqlCreate = conn.prepareStatement("INSERT INTO Project (ownerID, title, summary, numRatings, sumRatings, avgRating, created) " 
 						+ "VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -51,12 +58,31 @@
 				sqlCreate.setInt(4, 0);
 				sqlCreate.setInt(5, 0);
 				sqlCreate.setInt(6, 0);
-				sqlCreate.setDate(7, sqlDate);
+				sqlCreate.setString(7, date);
 				
 				int row = sqlCreate.executeUpdate();
 				
 				if (row > 0) {
-					result = request.getParameter("title") + " created successfully.";
+					sqlProject = conn.prepareStatement("SELECT projectID FROM Project WHERE title = ?");
+					sqlProject.setString(1, (request.getParameter("title")));
+					
+					resultsProject = sqlProject.executeQuery();
+					
+					if (resultsProject.next()) {
+						sqlGenre = conn.prepareStatement("INSERT INTO ProjectToGenre (projectID, genreID) " 
+								+ "VALUES (?, ?)");
+						sqlGenre.setInt(1, resultsProject.getInt("projectID"));
+						sqlGenre.setInt(2, Integer.parseInt(request.getParameter("genre")));
+						row = sqlGenre.executeUpdate();
+						
+						sqlPosition = conn.prepareStatement("INSERT INTO ProjectToPosition (projectID, positionID) "
+								+ "VALUES (?, ?)");
+						sqlPosition.setInt(1, resultsProject.getInt("projectID"));
+						sqlPosition.setInt(2, Integer.parseInt(request.getParameter("position")));
+						row = sqlPosition.executeUpdate();
+						
+						result = request.getParameter("title") + " created successfully.";
+					}
 				} 
 				else {
 					error = "Creation unsuccessful. Please try again.";
@@ -72,9 +98,6 @@
 			cnfe.printStackTrace();
 		} finally {
 			try {
- 				if (resultsCreate != null) {
- 					resultsCreate.close();
-				}
  				if (resultsUserID != null) {
  					resultsUserID.close();
 				}
