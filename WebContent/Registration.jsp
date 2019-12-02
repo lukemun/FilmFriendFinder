@@ -32,7 +32,7 @@
 	    		<div class="invalid-feedback">Please enter your last name.</div>
 	  		</div>
 	  		<div class="form-group">
-	    		<input type="text" class="form-control" id="email" placeholder="USC Email" name="email" required>
+	    		<input type="email" class="form-control" id="email" placeholder="USC Email" name="email" required>
 	    		<div class="valid-feedback"></div>
 	    		<div class="invalid-feedback">Please enter your USC email.</div>
 	  		</div>

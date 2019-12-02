@@ -54,7 +54,7 @@
 			    System.out.println("No ratings"); 
 			} 
 			
-			sqlSearch = conn.prepareStatement("SELECT Project.title, Project.created, Genre.genre, Project.avgRating, Project.summary " 
+			sqlSearch = conn.prepareStatement("SELECT Project.projectID, Project.title, Project.created, Genre.genre, Project.avgRating, Project.summary " 
 											+ "FROM Project " 
 											+ "JOIN ProjectToGenre " 
 											+ "ON Project.projectID = ProjectToGenre.projectID "
@@ -109,7 +109,6 @@
 	</div> 
 	
 		<div class="container">
-		<!-- TODO: Set search servlet -->
 		<form action="Projects.jsp" method="GET">
 			<div class="form-group row justify-content-center align-items-center">
 				<div class="col-sm-3 mt-1">
@@ -149,7 +148,7 @@
 							int rating = resultsRatings.getInt("avgRating");
 						%>	
 						<option value="<%= rating %>" class="stars-container stars-<%= rating * 20 %>">
-							★★★★
+							★★★★★
 						</option>
 						<%
 							}
@@ -173,6 +172,7 @@
 	
 	<%
 		while (resultsSearch != null && resultsSearch.next()) {
+			String projectID = resultsSearch.getString("Project.projectID");
 			String title = resultsSearch.getString("Project.title");
 			String datePosted = resultsSearch.getString("Project.created");
 			String genre = resultsSearch.getString("Genre.genre");
@@ -180,12 +180,11 @@
 			String summary = resultsSearch.getString("Project.summary");
 	%>	
 	
-	<!-- TODO: Update with dynamic results -->
 	<div class="container">
 		<div class="row mt-2">
 			<div class="col-12">
 				<h5>
-					<a class="font-weight-bold text-dark" href="Details.jsp"><%= title %></a>
+					<a class="font-weight-bold text-dark" href="Details.jsp?projectID=<%= projectID %>"><%= title %></a>
 				</h5>
 			</div>
 		</div>
@@ -199,8 +198,8 @@
 				<strong>Genre Tags:</strong> <%= genre %>
 			</div>
 			<div class="col-auto">
-				<strong>Rating:</strong> <span class="stars-container stars-<%= rating %>">★★★★★</span>
-				<div id="stars-value"><%= rating %></div>
+				<strong>Rating:</strong> <span class="stars-container stars-<%= rating * 20 %>">★★★★★</span>
+				<div id="stars-value"><%= rating * 20 %></div>
 			</div>
 		</div>
 		<div class="row mt-1 mb-5">
@@ -209,6 +208,10 @@
 			</div>
 		</div>
 	</div>
+	
+			<%
+			}
+		%>
 	
 	<!-- TODO: Show all results or implement pagination -->
 	<div class="col-12 mt-4">
@@ -235,7 +238,6 @@
 
 </body>
 	<%
-		}
 	} catch (SQLException sqle) {
 		System.out.println("SQLE ERROR" + sqle.getMessage());
 		sqle.printStackTrace();
