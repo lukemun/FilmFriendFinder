@@ -3,6 +3,7 @@
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.DriverManager" %>
 <%@ page import="java.sql.Statement" %>
+<%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
 
@@ -14,6 +15,11 @@
 		ResultSet resultsGenres = null;
 		ResultSet resultsDates = null;
 		ResultSet resultsRatings = null;
+		
+		PreparedStatement sqlSearch = null;
+		ResultSet resultsSearch = null;
+		
+		int numResults = 0;
 		
 		try  {
 			Class.forName("com.mysql.jdbc.Driver");  
@@ -47,6 +53,38 @@
 			if (!resultsRatings.isBeforeFirst() ) {    
 			    System.out.println("No ratings"); 
 			} 
+			
+			sqlSearch = conn.prepareStatement("SELECT Project.title, Project.created, Genre.genre, Project.avgRating, Project.summary " 
+											+ "FROM Project " 
+											+ "JOIN ProjectToGenre " 
+											+ "ON Project.projectID = ProjectToGenre.projectID "
+											+ "JOIN Genre " 
+											+ "ON Genre.genreID = ProjectToGenre.genreID "
+											+ "WHERE Genre.genreID LIKE ? AND Project.created LIKE ? AND Project.avgRating >= ?");
+			String id = "%";
+			if (request.getParameter("genre") != null && !request.getParameter("genre").isEmpty()) {
+				id = request.getParameter("genre");
+			}
+			String date = "%";
+			if (request.getParameter("date") != null && !request.getParameter("date").isEmpty()) {
+				date = request.getParameter("date");
+			}
+			int avgRating = 0;
+			if (request.getParameter("popularity") != null && !request.getParameter("popularity").isEmpty()) {
+				avgRating = Integer.parseInt(request.getParameter("popularity"));
+			}
+			
+			sqlSearch.setString(1, id);
+			sqlSearch.setString(2, date);
+			sqlSearch.setInt(3, avgRating);
+			
+			resultsSearch = sqlSearch.executeQuery();
+						
+			if (resultsSearch != null) {
+				resultsSearch.last(); 
+				numResults = resultsSearch.getRow();
+				resultsSearch.beforeFirst();
+			}
 	%>
 
 <!DOCTYPE html>
@@ -110,7 +148,9 @@
 						while (resultsRatings != null && resultsRatings.next()) {
 							int rating = resultsRatings.getInt("avgRating");
 						%>	
-						<option value="<%= rating %>"><%= rating %></option>
+						<option value="<%= rating %>" class="stars-container stars-<%= rating * 20 %>">
+							★★★★
+						</option>
 						<%
 							}
 						%>
@@ -126,103 +166,46 @@
 	<div class="container">
 		<div class="row mt-4 mb-4">
 			<div class="col-12">
-				<!-- TODO: Update with dynamic result number -->
-				Results: 5 project(s)
+				Results: <%= numResults %> project(s)
 			</div>
 		</div>
 	</div>
+	
+	<%
+		while (resultsSearch != null && resultsSearch.next()) {
+			String title = resultsSearch.getString("Project.title");
+			String datePosted = resultsSearch.getString("Project.created");
+			String genre = resultsSearch.getString("Genre.genre");
+			int rating = resultsSearch.getInt("Project.avgRating");
+			String summary = resultsSearch.getString("Project.summary");
+	%>	
 	
 	<!-- TODO: Update with dynamic results -->
 	<div class="container">
 		<div class="row mt-2">
 			<div class="col-12">
 				<h5>
-					<a class="font-weight-bold text-dark" href="Details.jsp">The Godfather</a>
+					<a class="font-weight-bold text-dark" href="Details.jsp"><%= title %></a>
 				</h5>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-12">
-				<strong>Date Posted:</strong> November 9, 2019
+				<strong>Date Posted:</strong> <%= datePosted %>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-auto">
-				<strong>Genre Tags:</strong> Crime, Drama	
+				<strong>Genre Tags:</strong> <%= genre %>
 			</div>
 			<div class="col-auto">
-				<strong>Rating:</strong> <span class="stars-container stars-80">★★★★★</span>
-				<div id="stars-value">80</div>
+				<strong>Rating:</strong> <span class="stars-container stars-<%= rating %>">★★★★★</span>
+				<div id="stars-value"><%= rating %></div>
 			</div>
 		</div>
 		<div class="row mt-1 mb-5">
 			<div class="col-12 font-italic">
-				The aging patriarch of an organized crime dynasty transfers control of his 
-				clandestine empire to his reluctant son.
-			</div>
-		</div>
-	</div>
-	
-	<!-- TODO: Update with dynamic results -->
-	<div class="container">
-		<div class="row mt-2">
-			<div class="col-12">
-				<h5>
-					<a class="font-weight-bold text-dark" href="Details.jsp">Joker</a>
-				</h5>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-12">
-				<strong>Date Posted:</strong> October 19, 2019
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-auto">
-				<strong>Genre Tags:</strong> Crime, Drama, Thriller
-			</div>
-			<div class="col-auto">
-				<strong>Rating:</strong> <span class="stars-container stars-80">★★★★★</span>
-				<div id="stars-value">80</div>
-			</div>
-		</div>
-		<div class="row mt-1 mb-5">
-			<div class="col-12 font-italic">
-				In Gotham City, mentally troubled comedian Arthur Fleck is disregarded and mistreated by society. 
-				He then embarks on a downward spiral of revolution and bloody crime. 
-				This path brings him face-to-face with his alter-ego: the Joker.
-			</div>
-		</div>
-	</div>
-
-	<!-- TODO: Update with dynamic results -->
-	<div class="container">
-		<div class="row mt-2">
-			<div class="col-12">
-				<h5>
-					<a class="font-weight-bold text-dark" href="Details.jsp">John Wick: Chapter 3 - Parabellum</a>
-				</h5>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-12">
-				<strong>Date Posted:</strong> October 19, 2019
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-auto">
-				<strong>Genre Tags:</strong> Crime, Action, Thriller	
-			</div>
-			<div class="col-auto">
-				<strong>Rating:</strong> <span class="stars-container stars-80">★★★★★</span>
-				<div id="stars-value">80</div>
-			</div>
-		</div>
-		<div class="row mt-1 mb-5">
-			<div class="col-12 font-italic">
-				John Wick is on the run after killing a member of the international assassin's guild, 
-				and with a $14 million price tag on his head, 
-				he is the target of hit men and women everywhere.
+				<%= summary %>
 			</div>
 		</div>
 	</div>
@@ -252,28 +235,29 @@
 
 </body>
 	<%
-		} catch (SQLException sqle) {
-			System.out.println("SQLE ERROR" + sqle.getMessage());
-			sqle.printStackTrace();
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("CNFE ERROR" + cnfe.getMessage());
-			cnfe.printStackTrace();
-		} finally {
-			try {
- 				if (resultsGenres != null) {
-					resultsGenres.close();
-				}
-				if (sqlGenres != null) {
-					sqlGenres.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException sqle) {
-				System.out.println(sqle.getMessage());
-			}
 		}
-		%>
+	} catch (SQLException sqle) {
+		System.out.println("SQLE ERROR" + sqle.getMessage());
+		sqle.printStackTrace();
+	} catch (ClassNotFoundException cnfe) {
+		System.out.println("CNFE ERROR" + cnfe.getMessage());
+		cnfe.printStackTrace();
+	} finally {
+		try {
+				if (resultsGenres != null) {
+				resultsGenres.close();
+			}
+			if (sqlGenres != null) {
+				sqlGenres.close();
+			}
+			if (conn != null) {
+				conn.close();
+			}
+		} catch (SQLException sqle) {
+			System.out.println(sqle.getMessage());
+		}
+	}
+	%>
 <style>
 
 	.stars-container {
