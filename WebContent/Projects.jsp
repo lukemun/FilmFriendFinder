@@ -7,7 +7,8 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
 <%@ page import="java.util.ArrayList" %>
-
+<%@ page import="java.util.Set" %>
+<%@ page import="java.util.HashSet" %>
 
 	<%
 		Connection conn = null;
@@ -20,6 +21,7 @@
 		ResultSet resultsSearch = null;
 		
 		ArrayList<String> titles = new ArrayList<String>();
+		Set<String> unique = new HashSet<String>();
 		int numResults = 0;
 		
 		try  {
@@ -67,13 +69,13 @@
 			sqlSearch.setString(1, id);
 			sqlSearch.setString(2, date);
 			
-			resultsSearch = sqlSearch.executeQuery();
-						
-			if (resultsSearch != null) {
-				resultsSearch.last(); 
-				numResults = resultsSearch.getRow();
-				resultsSearch.beforeFirst();
+			resultsSearch = sqlSearch.executeQuery();		
+			
+			while (resultsSearch != null && resultsSearch.next()) {
+				unique.add(resultsSearch.getString("title"));
 			}
+			resultsSearch.beforeFirst();
+
 	%>
 
 <!DOCTYPE html>
@@ -162,7 +164,7 @@
 	<div class="container">
 		<div class="row mt-4 mb-4">
 			<div class="col-12">
-				Results: <%= numResults %> project(s)
+				Results: <%= unique.size() %> project(s)
 			</div>
 		</div>
 	</div>

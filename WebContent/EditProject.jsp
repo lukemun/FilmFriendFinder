@@ -104,9 +104,8 @@
 									+ "ON ProjectUsers.userID = User.userID " 
 									+ "JOIN Position " 
 									+ "ON ProjectUsers.positionID = Position.positionID " 
-									+ "WHERE ProjectUsers.projectID = ? AND (ProjectUsers.accepted = ? OR ProjectUsers.accepted IS NULL)");
+									+ "WHERE ProjectUsers.projectID = ? AND ProjectUsers.accepted IS NULL");
 							sqlProjectApplied.setInt(1, id);
-							sqlProjectApplied.setInt(2, 0);
 							resultsProjectApplied = sqlProjectApplied.executeQuery();
 							
 							sqlProjectAccepted = conn.prepareStatement("SELECT ProjectUsers.puID, User.userID, User.firstName, User.lastName, Position.position, ProjectUsers.accepted "
@@ -138,6 +137,9 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>	
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
 	<title>Edit Positions</title>
     <script>
@@ -199,7 +201,18 @@
 	%>
 	<div class="container">
   		<div class="row justify-content-around">
+  		<%
+  			if (owner) {
+  		%>
+			<div class="col-7">
+		<%
+  			}
+			else {
+		%>
 			<div class="col-auto">
+		<%
+		}
+		%>
 			<div class="row mt-2">
 						<div class="col-12">
 							<h5>
@@ -243,7 +256,7 @@
 						</h5>
 					</div>
 				</div>
-				<div class="container">
+				<div class="container pl-0 pr-0">
 				<form action="EditConfirmation.jsp?projectID=<%= id %>" method="POST">
 				<%
 				if (resultsAllPositions != null) {

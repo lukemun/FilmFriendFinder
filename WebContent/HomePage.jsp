@@ -46,10 +46,32 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-	<title>Film Friend Finder</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>   
+	<script>
+
+        function checkForNewProject()
+        {
+            var source = new EventSource('http://localhost:8080/FilmFriendFinder/SendNotification');  
+            source.onmessage=function(event) {
+                document.getElementById("result").innerHTML=event.data + "<br />";
+                $("#result").show(); 
+                $("#result").hide().slideDown().delay(10000).fadeOut();
+            };
+        }
+    </script>
 </head>
-<body>
+
+<body onload="checkForNewProject()">
 	<%@ include file="Navbar.jsp" %>
+	<div class="container-fluid">
+		<div class="row justify-content-end">
+			<div class="col-auto mt-2-mb-2">
+				<output id ="result" class="font-weight-bold text-success mt-3 mb-3"> </output>
+			</div>
+		</div> 
+	</div> 
 	<div class="container">
 		<div class="row justify-content-center">
 			<h1 class="col-12 mt-2 mb-2 text-center">Film Friend Finder</h1>

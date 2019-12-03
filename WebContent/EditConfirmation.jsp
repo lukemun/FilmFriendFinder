@@ -39,6 +39,7 @@
 			row = sqlDeleteRoles.executeUpdate();
 			
 			String available[] = request.getParameterValues("addPosition");
+			if (available != null) {
 			for (int i = 0; i < available.length; i++) {
 				PreparedStatement sqlAddRoles = conn.prepareStatement("INSERT INTO ProjectToPosition (projectID, positionID) "
 						+ "VALUES (?, ?)");
@@ -52,6 +53,7 @@
 				
 				System.out.println(available[i]);
 			} 
+			}
 		} catch (SQLException sqle) {
 			System.out.println("SQLE ERROR" + sqle.getMessage());
 			sqle.printStackTrace();

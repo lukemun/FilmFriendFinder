@@ -194,8 +194,8 @@
   }, false);
 })();
 //Changes color of confirm password field
-$('#pwd, #cpwd').on('keyup', function () {
-	  if ($('#pwd').val() == $('#cpwd').val() && $('#pwd').val().length > 1) {
+$('#cpwd').on('keyup', function () {
+	  if ($('#pwd').val() == $('#cpwd').val()) {
 	    $('#cpwd').css('background-color', 'white');
 	  } else 
 	    $('#cpwd').css('background-color', '#ff7f7f');
