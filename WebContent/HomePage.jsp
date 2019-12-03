@@ -140,7 +140,9 @@
 						while (resultsRatings != null && resultsRatings.next()) {
 							int rating = resultsRatings.getInt("avgRating");
 						%>	
-						<option value="<%= rating %>"><%= rating %></option>
+						<option value="<%= rating %>" class="stars-container stars-<%= rating * 20 %>">
+							★★★★
+						</option>
 						<%
 							}
 						%>
