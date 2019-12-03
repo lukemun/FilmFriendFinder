@@ -20,11 +20,11 @@
 		}
 	else {
 		Connection conn = null;
-		PreparedStatement sqlUserID = null;
+		PreparedStatement sqlProjectExists = null;
 		PreparedStatement sqlCreate = null;
 		PreparedStatement sqlProject = null;
-		PreparedStatement sqlGenre = null;
 		PreparedStatement sqlPosition = null;
+		ResultSet resultsProjectExists = null;
 		ResultSet resultsUserID = null;
 		ResultSet resultsProject = null;
 		
@@ -37,13 +37,14 @@
 					+ "&user=root"
 					+ "&password=root");
 			
-			sqlUserID = conn.prepareStatement("SELECT userID FROM User WHERE email = ?");
-			sqlUserID.setString(1, (String) request.getSession().getAttribute("activeUser"));
+			sqlProjectExists = conn.prepareStatement("SELECT projectID FROM Project WHERE title = ?");
+			sqlProjectExists.setString(1, (request.getParameter("title")));
 			
-			resultsUserID = sqlUserID.executeQuery();
-						
-			if (resultsUserID.next()) {
-				int userID = resultsUserID.getInt("userID");
+			resultsProjectExists = sqlProjectExists.executeQuery();
+			
+			if (!resultsProjectExists.next()) {
+			
+				int userID = (Integer) request.getSession().getAttribute("activeUserID");
 				String pattern = "yyyy-MM-dd";
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
@@ -69,19 +70,32 @@
 					resultsProject = sqlProject.executeQuery();
 					
 					if (resultsProject.next()) {
-						sqlGenre = conn.prepareStatement("INSERT INTO ProjectToGenre (projectID, genreID) " 
-								+ "VALUES (?, ?)");
-						sqlGenre.setInt(1, resultsProject.getInt("projectID"));
-						sqlGenre.setInt(2, Integer.parseInt(request.getParameter("genre")));
-						// should check row value to see if inserted correctly
-						row = sqlGenre.executeUpdate();
 						
-						sqlPosition = conn.prepareStatement("INSERT INTO ProjectToPosition (projectID, positionID) "
-								+ "VALUES (?, ?)");
-						sqlPosition.setInt(1, resultsProject.getInt("projectID"));
-						sqlPosition.setInt(2, Integer.parseInt(request.getParameter("position")));
-						row = sqlPosition.executeUpdate();
+						String genres[] = request.getParameterValues("genre");
+						for (int i = 0; i < genres.length; i++) {
+							PreparedStatement sqlGenre = conn.prepareStatement("INSERT INTO ProjectToGenre (projectID, genreID) "
+									+ "VALUES (?, ?)");
+							sqlGenre.setInt(1, resultsProject.getInt("projectID"));
+							sqlGenre.setInt(2, Integer.parseInt(genres[i]));
+							row = sqlGenre.executeUpdate();
+							
+							if (row == 0) {
+								error += "Unable to add genre " + (genres[i]) + ".\n";
+							}
+						} 
 						
+						String positions[] = request.getParameterValues("position");
+						for (int i = 0; i < positions.length; i++) {
+							PreparedStatement sqlPositions = conn.prepareStatement("INSERT INTO ProjectToPosition (projectID, positionID) "
+									+ "VALUES (?, ?)");
+							sqlPositions.setInt(1, resultsProject.getInt("projectID"));
+							sqlPositions.setInt(2, Integer.parseInt(positions[i]));
+							row = sqlPositions.executeUpdate();
+							
+							if (row == 0) {
+								error += "Unable to add position " + (positions[i]) + ".\n";
+							}
+						} 
 						result = request.getParameter("title") + " created successfully.";
 					}
 				} 
@@ -89,7 +103,7 @@
 					error = "Creation unsuccessful. Please try again.";
 				}
 			} else {
-				error = "Error. Please try logging in and out.";
+				error = "A project with that title already exists. Please try a different title.";
 			}
 		} catch (SQLException sqle) {
 			System.out.println("SQLE ERROR" + sqle.getMessage());
@@ -104,9 +118,6 @@
 				}
 				if (sqlCreate != null) {
 					sqlCreate.close();
-				}
-				if (sqlUserID != null) {
-					sqlUserID.close();
 				}
 				if (conn != null) {
 					conn.close();

@@ -47,6 +47,11 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	
+	<!-- Multiple selections for the genre tag -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+	
 	<title>Registration</title>
 </head>
 
@@ -85,8 +90,8 @@
 	    		<div class="invalid-feedback">Please confirm your password.</div>
 	  		</div>
 	  		<div class="form-group">
-				<select name="position" id="position-id" class="form-control">
-					<option value="" selected>--Position--</option>
+				<select name="position" id="position-id" class="form-control selectpicker" multiple>
+					<option value="" disabled selected>--Position--</option>
 					<%
 					while (resultsPositions != null && resultsPositions.next()) {
 						int positionID = resultsPositions.getInt("positionID");
@@ -99,8 +104,8 @@
 					</select>				
 				</div>
 	  		<div class="form-group">
-				<select name="genre" id="genre-id" class="form-control">
-					<option value="" selected>--Genre--</option>
+				<select name="genre" id="genre-id" class="form-control selectpicker" multiple>
+					<option value="" disabled selected>--Genre--</option>
 					<%
 					while (resultsGenres != null && resultsGenres.next()) {
 						int genreID = resultsGenres.getInt("genreID");
