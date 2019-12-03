@@ -6,6 +6,7 @@
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
+<%@ page import="java.util.ArrayList" %>
 
 	<%
 		String error = null;
@@ -30,6 +31,8 @@
 		
 		PreparedStatement sqlProjectAccepted = null;
 		ResultSet resultsProjectAccepted = null;
+		
+		ArrayList<String> titles = new ArrayList<String>();
 				
 		try  {
 			Class.forName("com.mysql.jdbc.Driver");  
@@ -143,10 +146,27 @@
 		while (resultsSearch != null && resultsSearch.next()) {
 			String projectID = resultsSearch.getString("Project.projectID");
 			String title = resultsSearch.getString("Project.title");
-			String datePosted = resultsSearch.getString("Project.created");
-			String genre = resultsSearch.getString("Genre.genre");
-			int rating = resultsSearch.getInt("Project.avgRating");
-			String summary = resultsSearch.getString("Project.summary");
+				if (!titles.contains(title)) {
+					
+				String datePosted = resultsSearch.getString("Project.created");
+				ArrayList<String> genres = new ArrayList<String>();
+				
+				PreparedStatement sqlProjectGenres = null;
+				ResultSet resultsProjectGenres = null;
+				sqlProjectGenres = conn.prepareStatement("SELECT Genre.genre FROM Genre "
+												+ "JOIN ProjectToGenre " 
+												+ "ON Genre.genreID = ProjectToGenre.genreID "
+												+ "JOIN Project " 
+												+ "ON Project.projectID = ProjectToGenre.projectID "
+												+ "WHERE Project.projectID = ?");
+				sqlProjectGenres.setInt(1, Integer.parseInt(projectID));
+				resultsProjectGenres = sqlProjectGenres.executeQuery();
+				
+				while (resultsProjectGenres.next()) {
+					genres.add(resultsProjectGenres.getString("Genre.genre"));
+				}
+	
+				String summary = resultsSearch.getString("Project.summary");
 	%>	
 	<div class="container">
   		<div class="row justify-content-around">
@@ -165,12 +185,15 @@
 					</div>
 					<div class="row">
 						<div class="col-auto">
-							<strong>Genre Tags:</strong> <%= genre %>
-						</div>
-						<div class="col-auto">
-							<strong>Rating:</strong> <span class="stars-container stars-<%= rating * 20 %>">★★★★★</span>
-							<div id="stars-value"><%= rating * 20 %></div>
-						</div>
+						<strong>Genre Tags:</strong>
+						<%
+							for (int i = 0; i < genres.size(); i++) {
+						%>
+							 <%= genres.get(i) %> 
+						 <%
+						 }
+						 %>						
+				 		</div>
 					</div>
 					<div class="row mt-1 mb-5">
 						<div class="col-12 font-italic">
@@ -178,6 +201,9 @@
 						</div>
 					</div>
 		<%
+		titles.add(title);
+
+				}
 			}
 		%>
 		
@@ -341,45 +367,6 @@
 	}
 	%>
 <style>
-
-	.stars-container {
-	  position: relative;
-	  display: inline-block;
-	  color: transparent;
-	}
-	
-	.stars-container:before {
-	  position: absolute;
-	  top: 0;
-	  left: 0;
-	  content: '★★★★★';
-	  color: lightgray;
-	}
-	
-	.stars-container:after {
-	  position: absolute;
-	  top: 0;
-	  left: 0;
-	  content: '★★★★★';
-	  color: black;
-	  overflow: hidden;
-	}
-	
-	.stars-0:after { width: 0%; }
-	.stars-10:after { width: 10%; }
-	.stars-20:after { width: 20%; }
-	.stars-30:after { width: 30%; }
-	.stars-40:after { width: 40%; }
-	.stars-50:after { width: 50%; }
-	.stars-60:after { width: 60%; }
-	.stars-70:after { width: 70%; }
-	.stars-80:after { width: 80%; }
-	.stars-90:after { width: 90%; }
-	.stars-100:after { width: 100; }
-	
-	#stars-value {
-		display: none;
-	}
 	
 	.fa-check {
     	color: green;

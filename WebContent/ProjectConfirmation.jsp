@@ -24,6 +24,7 @@
 		PreparedStatement sqlCreate = null;
 		PreparedStatement sqlProject = null;
 		PreparedStatement sqlPosition = null;
+		PreparedStatement sqlOwner = null;
 		ResultSet resultsProjectExists = null;
 		ResultSet resultsUserID = null;
 		ResultSet resultsProject = null;
@@ -49,7 +50,7 @@
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
 				String date = simpleDateFormat.format(new Date());
-				
+				System.out.println("Inserting");
 				sqlCreate = conn.prepareStatement("INSERT INTO Project (ownerID, title, summary, numRatings, sumRatings, avgRating, created) " 
 						+ "VALUES (?, ?, ?, ?, ?, ?, ?)");
 				
@@ -96,6 +97,15 @@
 								error += "Unable to add position " + (positions[i]) + ".\n";
 							}
 						} 
+						
+						sqlOwner = conn.prepareStatement("INSERT INTO ProjectUsers (userID, projectID, positionID) " 
+								+ "VALUES (?, ?, ?)");
+						sqlOwner.setInt(1, (Integer) request.getSession().getAttribute("activeUserID"));
+						sqlOwner.setInt(2, resultsProject.getInt("projectID"));
+						sqlOwner.setInt(3, 15);
+						
+						row = sqlOwner.executeUpdate();
+						
 						result = request.getParameter("title") + " created successfully.";
 					}
 				} 

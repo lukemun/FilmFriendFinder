@@ -10,10 +10,8 @@
 		Connection conn = null;
 		Statement sqlGenres = null;
 		Statement sqlDates = null;
-		Statement sqlRatings = null;
 		ResultSet resultsGenres = null;
 		ResultSet resultsDates = null;
-		ResultSet resultsRatings = null;
 		
 		try  {
 			Class.forName("com.mysql.jdbc.Driver");  
@@ -39,14 +37,7 @@
 			if (!resultsGenres.isBeforeFirst() ) {    
 			    System.out.println("No dates"); 
 			} 
-			
-			sqlRatings = conn.createStatement();
-			sql = "SELECT DISTINCT avgRating FROM Project ORDER BY avgRating DESC;";
-			resultsRatings = sqlRatings.executeQuery(sql);
-						
-			if (!resultsRatings.isBeforeFirst() ) {    
-			    System.out.println("No ratings"); 
-			} 
+		
 	%>
 
 <!DOCTYPE html>
@@ -99,12 +90,11 @@
 	</div> 
 	
 	<div class="container">
-		<!-- TODO: Set search servlet -->
 		<form action="Projects.jsp" method="GET">
 			<div class="form-group row justify-content-center align-items-center">
-				<div class="col-sm-2 mt-1">Search:</div>
+				<div class="col-auto mt-1">Search:</div>
 				<label for="genre-id" class="d-none"></label>
-				<div class="col-sm-3 mt-1">
+				<div class="col-auto mt-1">
 					<select name="genre" id="genre-id" class="form-control">
 						<option value="" selected>--Genre--</option>
 						<%
@@ -119,7 +109,7 @@
 					</select>				
 				</div>
 				<label for="date-id" class="d-none"></label>
-				<div class="col-sm-3 mt-1">
+				<div class="col-auto mt-1">
 					<select name="date" id="date-id" class="form-control">
 						<option value="" selected>--Date Posted--</option>
 						<%
@@ -130,30 +120,6 @@
 						<%
 							}
 						%>
-					</select>
-				</div>
-				<label for="popularity-id" class="d-none"></label>
-				<div class="col-sm-3 mt-1">
-					<select name="popularity" id="popularity-id" class="form-control">
-						<option value="" selected>--Popularity--</option>
-						<option value="5" class="stars-container stars-100">
-							★★★★★
-						</option>
-						<option value="4" class="stars-container stars-80">
-							★★★★
-						</option>
-						<option value="3" class="stars-container stars-60">
-							★★★
-						</option>
-						<option value="2" class="stars-container stars-40">
-							★★
-						</option>
-						<option value="1" class="stars-container stars-20">
-							★
-						</option>
-						<option value="0" class="stars-container stars-0">
-							Unrated
-						</option>
 					</select>
 				</div>
 			</div>
@@ -189,45 +155,4 @@
 		%>
 
 </body>
-
-<style>
-	.stars-container {
-	  position: relative;
-	  display: inline-block;
-	  color: transparent;
-	}
-	
-	.stars-container:before {
-	  position: absolute;
-	  top: 0;
-	  left: 0;
-	  content: '★★★★★';
-	  color: lightgray;
-	}
-	
-	.stars-container:after {
-	  position: absolute;
-	  top: 0;
-	  left: 0;
-	  content: '★★★★★';
-	  color: black;
-	  overflow: hidden;
-	}
-	
-	.stars-0:after { width: 0%; }
-	.stars-10:after { width: 10%; }
-	.stars-20:after { width: 20%; }
-	.stars-30:after { width: 30%; }
-	.stars-40:after { width: 40%; }
-	.stars-50:after { width: 50%; }
-	.stars-60:after { width: 60%; }
-	.stars-70:after { width: 70%; }
-	.stars-80:after { width: 80%; }
-	.stars-90:after { width: 90%; }
-	.stars-100:after { width: 100; }
-	
-	#stars-value {
-		display: none;
-	}
-</style>
 </html>
