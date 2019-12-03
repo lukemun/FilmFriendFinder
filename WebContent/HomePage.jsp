@@ -136,16 +136,24 @@
 				<div class="col-sm-3 mt-1">
 					<select name="popularity" id="popularity-id" class="form-control">
 						<option value="" selected>--Popularity--</option>
-						<%
-						while (resultsRatings != null && resultsRatings.next()) {
-							int rating = resultsRatings.getInt("avgRating");
-						%>	
-						<option value="<%= rating %>" class="stars-container stars-<%= rating * 20 %>">
+						<option value="5" class="stars-container stars-100">
 							★★★★★
 						</option>
-						<%
-							}
-						%>
+						<option value="4" class="stars-container stars-80">
+							★★★★
+						</option>
+						<option value="3" class="stars-container stars-60">
+							★★★
+						</option>
+						<option value="2" class="stars-container stars-40">
+							★★
+						</option>
+						<option value="1" class="stars-container stars-20">
+							★
+						</option>
+						<option value="0" class="stars-container stars-0">
+							Unrated
+						</option>
 					</select>
 				</div>
 			</div>

@@ -22,6 +22,9 @@
 		|| request.getParameter("cpwd").isEmpty()) {
 			error = "Please fill out all required fields.";
 		}
+	else if (request.getParameter("pwd").compareTo(request.getParameter("cpwd")) != 0){
+		error = "Passwords do not match.";
+	}
 	else {
 		Connection conn = null;
 		PreparedStatement sqlUserExists = null;
@@ -29,6 +32,9 @@
 		PreparedStatement sqlNewUserID = null;
 		ResultSet resultsUserExists = null;
 		ResultSet resultsNewUserID = null;
+		
+		PreparedStatement sqlGenre = null;
+		PreparedStatement sqlPosition = null;
 		
 		try  {
 			Class.forName("com.mysql.jdbc.Driver");  
@@ -64,9 +70,22 @@
 					if (resultsNewUserID.next()) {
 						// Need to add genres/positions
 						
+						sqlGenre = conn.prepareStatement("INSERT INTO UserToGenre (userID, genreID) " 
+								+ "VALUES (?, ?)");
+						sqlGenre.setInt(1, resultsNewUserID.getInt("userID"));
+						sqlGenre.setInt(2, Integer.parseInt(request.getParameter("genre")));
+						row = sqlGenre.executeUpdate();
+						
+						sqlPosition = conn.prepareStatement("INSERT INTO UserToPosition (userID, positionID) "
+								+ "VALUES (?, ?)");
+						sqlPosition.setInt(1, resultsNewUserID.getInt("userID"));
+						sqlPosition.setInt(2, Integer.parseInt(request.getParameter("position")));
+						row = sqlPosition.executeUpdate();
+						
 						result = "Accounted created and logged in!";
 						request.getSession().setAttribute("loggedIn", true);
 						request.getSession().setAttribute("activeUser", request.getParameter("email"));
+						request.getSession().setAttribute("activeUserID", resultsNewUserID.getInt("userID"));
 					}
 				}
 				else {

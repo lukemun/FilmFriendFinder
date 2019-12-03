@@ -32,7 +32,7 @@
 							+ "&user=root"
 							+ "&password=root");
 					
-					sqlLogin = conn.prepareStatement("SELECT password FROM User WHERE email = ? AND password = ?");
+					sqlLogin = conn.prepareStatement("SELECT userID FROM User WHERE email = ? AND password = ?");
 					sqlLogin.setString(1, request.getParameter("uname"));
 					sqlLogin.setString(2, request.getParameter("pwd"));
 		
@@ -41,7 +41,9 @@
 					if (resultsLogin.next()) {
 						result = "Logged in!";
 						request.getSession().setAttribute("loggedIn", true);
+						request.getSession().setAttribute("activeUserID", resultsLogin.getInt("userID"));
 						request.getSession().setAttribute("activeUser", request.getParameter("uname"));
+
 						response.sendRedirect("HomePage.jsp");
 					} else {
 						error = "Username or password incorrect. Please try again.";
@@ -107,8 +109,8 @@
 			</div> <!-- .row -->
 		
 			<div class="form-group">
-    			<label for="uname">Username</label>
-    			<input type="text" class="form-control" id="uname" name="uname" required>
+    			<label for="uname">Email</label>
+    			<input type="email" class="form-control" id="uname" name="uname" required>
     			<div class="valid-feedback"></div>
     			<div class="invalid-feedback">Please enter email.</div>
   			</div>

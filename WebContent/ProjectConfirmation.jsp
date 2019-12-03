@@ -73,6 +73,7 @@
 								+ "VALUES (?, ?)");
 						sqlGenre.setInt(1, resultsProject.getInt("projectID"));
 						sqlGenre.setInt(2, Integer.parseInt(request.getParameter("genre")));
+						// should check row value to see if inserted correctly
 						row = sqlGenre.executeUpdate();
 						
 						sqlPosition = conn.prepareStatement("INSERT INTO ProjectToPosition (projectID, positionID) "

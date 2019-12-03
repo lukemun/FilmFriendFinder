@@ -22,6 +22,9 @@
 		PreparedStatement sqlPositions = null;
 		ResultSet resultsPositions = null;
 		
+		Statement sqlAllPositions = null;
+		ResultSet resultsAllPositions = null;
+		
 		PreparedStatement sqlOwner = null;
 		ResultSet resultsOwner = null;
 		
@@ -63,8 +66,14 @@
 			 										+ "ON ProjectToPosition.projectID = Project.projectID " 
 			 										+ "WHERE Project.projectID = ?");
 			 	sqlPositions.setInt(1, id);
-
 		 		resultsPositions = sqlPositions.executeQuery();
+
+				sqlAllPositions = conn.createStatement();
+				resultsAllPositions = sqlPositions.executeQuery("SELECT * FROM Position;");
+				
+				if (!resultsAllPositions.isBeforeFirst() ) {    
+				    System.out.println("No positions"); 
+				}
 				
 				if (request.getSession().getAttribute("activeUser") != null) {
 					
@@ -127,7 +136,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
-	<title>Details</title>
+	<title>Edit Positions</title>
 </head>
 <body>
 	<%@ include file="Navbar.jsp" %>
@@ -189,21 +198,20 @@
 					</div>
 				</div>
 				<div class="container">
-				<form action="ApplicationConfirmation.jsp?projectID=<%=id %>" method="POST">
+				<form action="EditConfirmation.jsp?projectID=<%= id %>" method="POST">
 				<%
-				if (resultsPositions != null) {
+				if (resultsAllPositions != null) {
 					posAvailable = true;
-					while (resultsPositions != null && resultsPositions.next()) {
-						int positionID = resultsPositions.getInt("positionID");
-						String position = resultsPositions.getString("position");
+					while (resultsAllPositions != null && resultsAllPositions.next()) {
+						int positionID = resultsAllPositions.getInt("positionID");
+						String position = resultsAllPositions.getString("position");
 				%>
-
 				<div class="row">
-					<div class="col-auto mb-4">
+					<div class="col-auto mb-2">
 						<%= position %>
 					</div>
 					<div class="col-auto form-check">
-					  <input class="form-check-input position-static" type="checkbox" id="blankCheckbox" name="applyTo" value="<%= positionID %>" aria-label="...">
+					  <input class="form-check-input position-static" type="checkbox" id="blankCheckbox" name="addPosition" value="<%= positionID %>" aria-label="...">
 					</div>
 				</div>
 				<%
@@ -220,31 +228,19 @@
 						}
 				%>
 				
-			<div class="row mt-2 mb-2">
+				<div class="row mt-2 mb-2">
 					<div class="col">
-						<%
-							if (request.getSession().getAttribute("activeUser") == null && posAvailable) {
-						%>	
-			  				<div class="text-danger">Please login to apply to a project.</div>
-						<%
-							}
-							else if (!owner && posAvailable){
-						%>
-			  				<button type="submit" class="btn btn-dark">Apply</button>
-						<%
-							}
-							else if (owner){
-						%>
-			  				<a href="EditProject.jsp?projectID=<%= id %>"class="btn btn-dark">Edit</a>
-						<%
-							}
-						%>
+				  		<br></br><button type="submit" class="btn btn-dark">Save</button>
+	  					<a href="${header.referer}" role="button" class="btn btn-light">Cancel</a>
 					</div>
 				</div>
-				</form>
+			</form>
 			</div>
 		</div>
-
+		
+		<!-- TODO: Only show if project owner? -->
+		<!-- Add approve/reject buttons -->
+		<!-- Add links to users profile -->
 		<%
 			if (owner) {
 		%>	
