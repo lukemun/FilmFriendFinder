@@ -55,6 +55,14 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    
+    <!-- Multiple selections for the genre tag -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+
 	<title>Film Friend Finder</title>
 </head>
 <body>
@@ -105,8 +113,8 @@
 				<div class="col-sm-2 mt-1">Search:</div>
 				<label for="genre-id" class="d-none"></label>
 				<div class="col-sm-3 mt-1">
-					<select name="genre" id="genre-id" class="form-control">
-						<option value="" selected>--Genre--</option>
+					<select name="genre" id="genre-id" class="form-control selectpicker" multiple>
+						<option value="" disabled selected>--Genre--</option>
 						<%
 						while (resultsGenres != null && resultsGenres.next()) {
 							int genreID = resultsGenres.getInt("genreID");
@@ -116,7 +124,7 @@
 						<%
 							}
 						%>
-					</select>				
+					</select>			
 				</div>
 				<label for="date-id" class="d-none"></label>
 				<div class="col-sm-3 mt-1">
@@ -179,7 +187,7 @@
 			}
 		}
 		%>
-
+		
 </body>
 
 <style>
@@ -222,4 +230,5 @@
 		display: none;
 	}
 </style>
+
 </html>
