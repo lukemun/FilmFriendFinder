@@ -1,6 +1,44 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<!DOCTYPE html>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.DriverManager" %>
+<%@ page import="java.sql.Statement" %>
+<%@ page import="java.sql.PreparedStatement" %>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="java.sql.SQLException" %>
+
+	<%
+		Connection conn = null;
+		Statement sqlGenres = null;
+		Statement sqlPositions = null;
+		ResultSet resultsGenres = null;
+		ResultSet resultsPositions = null;
+		
+		try  {
+			Class.forName("com.mysql.jdbc.Driver");  
+			conn = DriverManager.getConnection("jdbc:mysql://google/fff"
+					+ "?cloudSqlInstance=filmfriendfinder:us-central1:fff-db"
+					+ "&socketFactory=com.google.cloud.sql.mysql.SocketFactory"
+					+ "&useSSL=false"
+					+ "&user=root"
+					+ "&password=root");
+			
+			sqlGenres = conn.createStatement();
+			String sql = "SELECT * FROM Genre;";
+			resultsGenres = sqlGenres.executeQuery(sql);
+						
+			if (!resultsGenres.isBeforeFirst() ) {    
+			    System.out.println("No genres"); 
+			} 
+			
+			sqlPositions = conn.createStatement();
+			sql = "SELECT * FROM Position;";
+			resultsPositions = sqlPositions.executeQuery(sql);
+						
+			if (!resultsGenres.isBeforeFirst() ) {    
+			    System.out.println("No positions"); 
+			} 
+	%>
 <html>
 <head>
 	<meta charset="UTF-8">
@@ -9,6 +47,11 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	
+	<!-- Multiple selections for the genre tag -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+	
 	<title>Registration</title>
 </head>
 
@@ -47,11 +90,33 @@
 	    		<div class="invalid-feedback">Please confirm your password.</div>
 	  		</div>
 	  		<div class="form-group">
-	    		<input type="text" class="form-control" id="position" placeholder="Position(s) Interested In" name="position">
-	  		</div>
+				<select name="position" id="position-id" class="form-control selectpicker" multiple>
+					<option value="" disabled selected>--Position--</option>
+					<%
+					while (resultsPositions != null && resultsPositions.next()) {
+						int positionID = resultsPositions.getInt("positionID");
+						String position = resultsPositions.getString("position");
+					%>	
+					<option value="<%= positionID %>"><%= position %></option>
+					<%
+						}
+					%>
+					</select>				
+				</div>
 	  		<div class="form-group">
-	    		<input type="text" class="form-control" id="prefproj" placeholder="Preferred Project(s)" name="prefproj">
-	  		</div>
+				<select name="genre" id="genre-id" class="form-control selectpicker" multiple>
+					<option value="" disabled selected>--Genre--</option>
+					<%
+					while (resultsGenres != null && resultsGenres.next()) {
+						int genreID = resultsGenres.getInt("genreID");
+						String genre = resultsGenres.getString("genre");
+					%>	
+					<option value="<%= genreID %>"><%= genre %></option>
+					<%
+						}
+					%>
+					</select>				
+				</div>
 <!-- 	  		 <div class="custom-file">
     			<input type="file" class="custom-file-input" id="customFile" required>
     			<label class="custom-file-label" for="customFile">Upload Resume</label>
@@ -61,7 +126,29 @@
 	  		<a href="${header.referer}" role="button" class="btn btn-light">Cancel</a>
 		</form>
 	</div>
-
+	<%
+	} catch (SQLException sqle) {
+		System.out.println("SQLE ERROR" + sqle.getMessage());
+		sqle.printStackTrace();
+	} catch (ClassNotFoundException cnfe) {
+		System.out.println("CNFE ERROR" + cnfe.getMessage());
+		cnfe.printStackTrace();
+	} finally {
+		try {
+				if (resultsGenres != null) {
+				resultsGenres.close();
+			}
+			if (sqlGenres != null) {
+				sqlGenres.close();
+			}
+			if (conn != null) {
+				conn.close();
+			}
+		} catch (SQLException sqle) {
+			System.out.println(sqle.getMessage());
+		}
+	}
+	%>
 <script>
 // Disable form submissions if there are invalid fields
 (function() {
@@ -85,7 +172,6 @@
     });
   }, false);
 })();
-
 //Changes color of confirm password field
 $('#pwd, #cpwd').on('keyup', function () {
 	  if ($('#pwd').val() == $('#cpwd').val() && $('#pwd').val().length > 1) {
