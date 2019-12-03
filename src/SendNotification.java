@@ -59,7 +59,7 @@ public class SendNotification extends HttpServlet {
     			newNum = resultsCheck.getInt(1);
     		}
 
-            if (newNum != numResults) {
+            if (newNum > numResults) {
 	            pw.write("event: New Project Created\n\n");
 	            pw.write("data: "+ "A new project has been created. Go check it out!" + "\n\n");
 	            pw.flush();
