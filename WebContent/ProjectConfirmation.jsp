@@ -20,11 +20,12 @@
 		}
 	else {
 		Connection conn = null;
-		PreparedStatement sqlUserID = null;
+		PreparedStatement sqlProjectExists = null;
 		PreparedStatement sqlCreate = null;
 		PreparedStatement sqlProject = null;
-		PreparedStatement sqlGenre = null;
 		PreparedStatement sqlPosition = null;
+		PreparedStatement sqlOwner = null;
+		ResultSet resultsProjectExists = null;
 		ResultSet resultsUserID = null;
 		ResultSet resultsProject = null;
 		
@@ -37,18 +38,19 @@
 					+ "&user=root"
 					+ "&password=root");
 			
-			sqlUserID = conn.prepareStatement("SELECT userID FROM User WHERE email = ?");
-			sqlUserID.setString(1, (String) request.getSession().getAttribute("activeUser"));
+			sqlProjectExists = conn.prepareStatement("SELECT projectID FROM Project WHERE title = ?");
+			sqlProjectExists.setString(1, (request.getParameter("title")));
 			
-			resultsUserID = sqlUserID.executeQuery();
-						
-			if (resultsUserID.next()) {
-				int userID = resultsUserID.getInt("userID");
+			resultsProjectExists = sqlProjectExists.executeQuery();
+			
+			if (!resultsProjectExists.next()) {
+			
+				int userID = (Integer) request.getSession().getAttribute("activeUserID");
 				String pattern = "yyyy-MM-dd";
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 
 				String date = simpleDateFormat.format(new Date());
-				
+				System.out.println("Inserting");
 				sqlCreate = conn.prepareStatement("INSERT INTO Project (ownerID, title, summary, numRatings, sumRatings, avgRating, created) " 
 						+ "VALUES (?, ?, ?, ?, ?, ?, ?)");
 				
@@ -69,17 +71,41 @@
 					resultsProject = sqlProject.executeQuery();
 					
 					if (resultsProject.next()) {
-						sqlGenre = conn.prepareStatement("INSERT INTO ProjectToGenre (projectID, genreID) " 
-								+ "VALUES (?, ?)");
-						sqlGenre.setInt(1, resultsProject.getInt("projectID"));
-						sqlGenre.setInt(2, Integer.parseInt(request.getParameter("genre")));
-						row = sqlGenre.executeUpdate();
 						
-						sqlPosition = conn.prepareStatement("INSERT INTO ProjectToPosition (projectID, positionID) "
-								+ "VALUES (?, ?)");
-						sqlPosition.setInt(1, resultsProject.getInt("projectID"));
-						sqlPosition.setInt(2, Integer.parseInt(request.getParameter("position")));
-						row = sqlPosition.executeUpdate();
+						String genres[] = request.getParameterValues("genre");
+						for (int i = 0; i < genres.length; i++) {
+							PreparedStatement sqlGenre = conn.prepareStatement("INSERT INTO ProjectToGenre (projectID, genreID) "
+									+ "VALUES (?, ?)");
+							sqlGenre.setInt(1, resultsProject.getInt("projectID"));
+							sqlGenre.setInt(2, Integer.parseInt(genres[i]));
+							row = sqlGenre.executeUpdate();
+							
+							if (row == 0) {
+								error += "Unable to add genre " + (genres[i]) + ".\n";
+							}
+						} 
+						
+						String positions[] = request.getParameterValues("position");
+						for (int i = 0; i < positions.length; i++) {
+							PreparedStatement sqlPositions = conn.prepareStatement("INSERT INTO ProjectToPosition (projectID, positionID) "
+									+ "VALUES (?, ?)");
+							sqlPositions.setInt(1, resultsProject.getInt("projectID"));
+							sqlPositions.setInt(2, Integer.parseInt(positions[i]));
+							row = sqlPositions.executeUpdate();
+							
+							if (row == 0) {
+								error += "Unable to add position " + (positions[i]) + ".\n";
+							}
+						} 
+						
+						sqlOwner = conn.prepareStatement("INSERT INTO ProjectUsers (userID, projectID, positionID, accepted) " 
+								+ "VALUES (?, ?, ?, ?)");
+						sqlOwner.setInt(1, (Integer) request.getSession().getAttribute("activeUserID"));
+						sqlOwner.setInt(2, resultsProject.getInt("projectID"));
+						sqlOwner.setInt(3, 15);
+						sqlOwner.setInt(4, 1);
+						
+						row = sqlOwner.executeUpdate();
 						
 						result = request.getParameter("title") + " created successfully.";
 					}
@@ -88,7 +114,7 @@
 					error = "Creation unsuccessful. Please try again.";
 				}
 			} else {
-				error = "Error. Please try logging in and out.";
+				error = "A project with that title already exists. Please try a different title.";
 			}
 		} catch (SQLException sqle) {
 			System.out.println("SQLE ERROR" + sqle.getMessage());
@@ -103,9 +129,6 @@
 				}
 				if (sqlCreate != null) {
 					sqlCreate.close();
-				}
-				if (sqlUserID != null) {
-					sqlUserID.close();
 				}
 				if (conn != null) {
 					conn.close();
@@ -126,11 +149,29 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 	<title>Registration</title>
+    <script>
+
+        function checkForNewProject()
+        {
+            var source = new EventSource('http://localhost:8080/FilmFriendFinder/SendNotification');  
+            source.onmessage=function(event) {
+                document.getElementById("result").innerHTML=event.data + "<br />";
+                $("#result").show(); 
+                $("#result").hide().slideDown().delay(10000).fadeOut();
+            };
+        }
+    </script>
 </head>
 
-<body>
+<body onload="checkForNewProject()">
 	<%@ include file="Navbar.jsp" %>
-	
+	<div class="container-fluid">
+		<div class="row justify-content-end">
+			<div class="col-auto mt-2-mb-2">
+				<output id ="result" class="font-weight-bold text-success mt-3 mb-3"> </output>
+			</div>
+		</div> 
+	</div> 
 	<div class="container">
 		<div class="row">
 			<h1 class="col-12 mt-4">Project Creation</h1>

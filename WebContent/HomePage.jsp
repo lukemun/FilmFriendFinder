@@ -10,10 +10,8 @@
 		Connection conn = null;
 		Statement sqlGenres = null;
 		Statement sqlDates = null;
-		Statement sqlRatings = null;
 		ResultSet resultsGenres = null;
 		ResultSet resultsDates = null;
-		ResultSet resultsRatings = null;
 		
 		try  {
 			Class.forName("com.mysql.jdbc.Driver");  
@@ -39,14 +37,7 @@
 			if (!resultsGenres.isBeforeFirst() ) {    
 			    System.out.println("No dates"); 
 			} 
-			
-			sqlRatings = conn.createStatement();
-			sql = "SELECT DISTINCT avgRating FROM Project ORDER BY avgRating DESC;";
-			resultsRatings = sqlRatings.executeQuery(sql);
-						
-			if (!resultsRatings.isBeforeFirst() ) {    
-			    System.out.println("No ratings"); 
-			} 
+		
 	%>
 
 <!DOCTYPE html>
@@ -55,14 +46,6 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    
-    <!-- Multiple selections for the genre tag -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
-
 	<title>Film Friend Finder</title>
 </head>
 <body>
@@ -107,14 +90,13 @@
 	</div> 
 	
 	<div class="container">
-		<!-- TODO: Set search servlet -->
 		<form action="Projects.jsp" method="GET">
 			<div class="form-group row justify-content-center align-items-center">
-				<div class="col-sm-2 mt-1">Search:</div>
+				<div class="col-auto mt-1">Search:</div>
 				<label for="genre-id" class="d-none"></label>
-				<div class="col-sm-3 mt-1">
-					<select name="genre" id="genre-id" class="form-control selectpicker" multiple>
-						<option value="" disabled selected>--Genre--</option>
+				<div class="col-auto mt-1">
+					<select name="genre" id="genre-id" class="form-control">
+						<option value="" selected>--Genre--</option>
 						<%
 						while (resultsGenres != null && resultsGenres.next()) {
 							int genreID = resultsGenres.getInt("genreID");
@@ -124,10 +106,10 @@
 						<%
 							}
 						%>
-					</select>			
+					</select>				
 				</div>
 				<label for="date-id" class="d-none"></label>
-				<div class="col-sm-3 mt-1">
+				<div class="col-auto mt-1">
 					<select name="date" id="date-id" class="form-control">
 						<option value="" selected>--Date Posted--</option>
 						<%
@@ -135,22 +117,6 @@
 							String created = resultsDates.getString("created");
 						%>	
 						<option value="<%= created %>"><%= created %></option>
-						<%
-							}
-						%>
-					</select>
-				</div>
-				<label for="popularity-id" class="d-none"></label>
-				<div class="col-sm-3 mt-1">
-					<select name="popularity" id="popularity-id" class="form-control">
-						<option value="" selected>--Popularity--</option>
-						<%
-						while (resultsRatings != null && resultsRatings.next()) {
-							int rating = resultsRatings.getInt("avgRating");
-						%>	
-						<option value="<%= rating %>" class="stars-container stars-<%= rating * 20 %>">
-							★★★★
-						</option>
 						<%
 							}
 						%>
@@ -187,48 +153,6 @@
 			}
 		}
 		%>
-		
+
 </body>
-
-<style>
-	.stars-container {
-	  position: relative;
-	  display: inline-block;
-	  color: transparent;
-	}
-	
-	.stars-container:before {
-	  position: absolute;
-	  top: 0;
-	  left: 0;
-	  content: '★★★★★';
-	  color: lightgray;
-	}
-	
-	.stars-container:after {
-	  position: absolute;
-	  top: 0;
-	  left: 0;
-	  content: '★★★★★';
-	  color: black;
-	  overflow: hidden;
-	}
-	
-	.stars-0:after { width: 0%; }
-	.stars-10:after { width: 10%; }
-	.stars-20:after { width: 20%; }
-	.stars-30:after { width: 30%; }
-	.stars-40:after { width: 40%; }
-	.stars-50:after { width: 50%; }
-	.stars-60:after { width: 60%; }
-	.stars-70:after { width: 70%; }
-	.stars-80:after { width: 80%; }
-	.stars-90:after { width: 90%; }
-	.stars-100:after { width: 100; }
-	
-	#stars-value {
-		display: none;
-	}
-</style>
-
 </html>

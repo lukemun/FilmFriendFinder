@@ -22,6 +22,9 @@
 		|| request.getParameter("cpwd").isEmpty()) {
 			error = "Please fill out all required fields.";
 		}
+	else if (request.getParameter("pwd").compareTo(request.getParameter("cpwd")) != 0){
+		error = "Passwords do not match.";
+	}
 	else {
 		Connection conn = null;
 		PreparedStatement sqlUserExists = null;
@@ -63,10 +66,36 @@
 					resultsNewUserID = sqlNewUserID.executeQuery();
 					if (resultsNewUserID.next()) {
 						// Need to add genres/positions
+						String genres[] = request.getParameterValues("genre");
+						for (int i = 0; i < genres.length; i++) {
+							PreparedStatement sqlGenre = conn.prepareStatement("INSERT INTO UserToGenre (userID, genreID) "
+									+ "VALUES (?, ?)");
+							sqlGenre.setInt(1, resultsNewUserID.getInt("userID"));
+							sqlGenre.setInt(2, Integer.parseInt(genres[i]));
+							row = sqlGenre.executeUpdate();
+							
+							if (row == 0) {
+								error += "Unable to add genre " + (genres[i]) + ".\n";
+							}
+						} 
+						
+						String positions[] = request.getParameterValues("position");
+						for (int i = 0; i < positions.length; i++) {
+							PreparedStatement sqlPositions = conn.prepareStatement("INSERT INTO UserToPosition (userID, positionID) "
+									+ "VALUES (?, ?)");
+							sqlPositions.setInt(1, resultsNewUserID.getInt("userID"));
+							sqlPositions.setInt(2, Integer.parseInt(positions[i]));
+							row = sqlPositions.executeUpdate();
+							
+							if (row == 0) {
+								error += "Unable to add position " + (positions[i]) + ".\n";
+							}
+						} 
 						
 						result = "Accounted created and logged in!";
 						request.getSession().setAttribute("loggedIn", true);
 						request.getSession().setAttribute("activeUser", request.getParameter("email"));
+						request.getSession().setAttribute("activeUserID", resultsNewUserID.getInt("userID"));
 					}
 				}
 				else {

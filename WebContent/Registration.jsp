@@ -53,10 +53,29 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
 	
 	<title>Registration</title>
+    <script>
+
+        function checkForNewProject()
+        {
+            var source = new EventSource('http://localhost:8080/FilmFriendFinder/SendNotification');  
+            source.onmessage=function(event) {
+                document.getElementById("result").innerHTML=event.data + "<br />";
+                $("#result").show(); 
+                $("#result").hide().slideDown().delay(10000).fadeOut();
+            };
+        }
+    </script>
 </head>
 
-<body>
+<body onload="checkForNewProject()">
 	<%@ include file="Navbar.jsp" %>
+	<div class="container-fluid">
+		<div class="row justify-content-end">
+			<div class="col-auto mt-2-mb-2">
+				<output id ="result" class="font-weight-bold text-success mt-3 mb-3"> </output>
+			</div>
+		</div> 
+	</div> 
 	<div class="container">
 		<div class="row">
 			<h1 class="col-12 mt-4 mb-4">Register</h1>
@@ -90,28 +109,30 @@
 	    		<div class="invalid-feedback">Please confirm your password.</div>
 	  		</div>
 	  		<div class="form-group">
-				<select name="position" id="position-id" class="form-control selectpicker" multiple>
-					<option value="" disabled selected>--Position--</option>
-					<%
-					while (resultsPositions != null && resultsPositions.next()) {
-						int positionID = resultsPositions.getInt("positionID");
-						String position = resultsPositions.getString("position");
-					%>	
-					<option value="<%= positionID %>"><%= position %></option>
-					<%
-						}
-					%>
-					</select>				
-				</div>
-	  		<div class="form-group">
+  				<label for="genre">Genre(s) You're interested in</label>
 				<select name="genre" id="genre-id" class="form-control selectpicker" multiple>
-					<option value="" disabled selected>--Genre--</option>
+					<option value="" disabled>--Genre--</option>
 					<%
 					while (resultsGenres != null && resultsGenres.next()) {
 						int genreID = resultsGenres.getInt("genreID");
 						String genre = resultsGenres.getString("genre");
 					%>	
 					<option value="<%= genreID %>"><%= genre %></option>
+					<%
+						}
+					%>
+					</select>				
+				</div>
+	  		<div class="form-group">
+  				<label for="position">Positions(s) You're interested in</label>
+				<select name="position" id="position-id" class="form-control selectpicker" multiple>
+					<option value="" disabled>--Position--</option>
+					<%
+					while (resultsPositions != null && resultsPositions.next()) {
+						int positionID = resultsPositions.getInt("positionID");
+						String position = resultsPositions.getString("position");
+					%>	
+					<option value="<%= positionID %>"><%= position %></option>
 					<%
 						}
 					%>

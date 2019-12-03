@@ -53,10 +53,29 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
 	
 	<title>Project Creation</title>
+    <script>
+
+        function checkForNewProject()
+        {
+            var source = new EventSource('http://localhost:8080/FilmFriendFinder/SendNotification');  
+            source.onmessage=function(event) {
+                document.getElementById("result").innerHTML=event.data + "<br />";
+                $("#result").show(); 
+                $("#result").hide().slideDown().delay(10000).fadeOut();
+            };
+        }
+    </script>
 </head>
 
-<body>
+<body onload="checkForNewProject()">
 	<%@ include file="Navbar.jsp" %>
+	<div class="container-fluid">
+		<div class="row justify-content-end">
+			<div class="col-auto mt-2-mb-2">
+				<output id ="result" class="font-weight-bold text-success mt-3 mb-3"> </output>
+			</div>
+		</div> 
+	</div> 
 	<div class="container">
 		<div class="row">
 			<h1 class="col-12 mt-4 mb-4">Post a Project</h1>
@@ -79,7 +98,7 @@
   			<div class="form-group">
   				<label for="genre">Genre Tags</label>
  					<select name="genre" id="genre" class="form-control selectpicker" multiple required>
-						<option value="" disabled selected>--Genre--</option>
+						<option value="" disabled>--Genre--</option>
 						<%
 						while (resultsGenres != null && resultsGenres.next()) {
 							int genreID = resultsGenres.getInt("genreID");
@@ -96,7 +115,7 @@
   			<div class="form-group">
     			<label for="position">Position(s) You're Looking For</label>
     			 	<select name="position" id="postion" class="form-control selectpicker" multiple required>
-						<option value="" disabled selected>--Positions--</option>
+						<option value="" disabled>--Positions--</option>
 						<%
 						while (resultsPositions != null && resultsPositions.next()) {
 							int positionID = resultsPositions.getInt("positionID");

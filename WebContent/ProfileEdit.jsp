@@ -1,13 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.DriverManager" %>
-<%@ page import="java.sql.Statement" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="java.sql.SQLException" %>
+	pageEncoding="UTF-8"%>
+<%@ page import="java.sql.Connection"%>
+<%@ page import="java.sql.DriverManager"%>
+<%@ page import="java.sql.Statement"%>
+<%@ page import="java.sql.PreparedStatement"%>
+<%@ page import="java.sql.ResultSet"%>
+<%@ page import="java.sql.SQLException"%>
 
-	<%
+<%
 		Connection conn = null;
 		PreparedStatement sqlUserExists = null;
 		PreparedStatement sqlGenres = null;
@@ -15,6 +15,12 @@
 		ResultSet resultsUserExists = null;
 		ResultSet resultsGenres = null;
 		ResultSet resultsPositions = null;
+		
+		Statement sqlAllPositions = null;
+		ResultSet resultsAllPositions = null;
+		
+		Statement sqlAllGenres = null;
+		ResultSet resultsAllGenres = null;
 		
 		PreparedStatement sqlInProgress = null;
 		PreparedStatement sqlAppliedTo = null;
@@ -52,6 +58,30 @@
 				if (resultsUserExists.next()) {
 					name = resultsUserExists.getString("firstName") + " " + resultsUserExists.getString("lastName");
 				} 
+			}
+			
+			String type = "";
+			
+			if (request.getParameter("type") != null) {
+				type = request.getParameter("type");
+			}
+			
+			if (type.compareTo("position") == 0) {
+				sqlAllPositions = conn.createStatement();
+				resultsAllPositions = sqlAllPositions.executeQuery("SELECT * FROM Position;");
+			
+				if (!resultsAllPositions.isBeforeFirst() ) {    
+				    System.out.println("No positions"); 
+				}
+			}
+			
+			else if (type.compareTo("genre") == 0) {
+				sqlAllGenres = conn.createStatement();
+				resultsAllGenres = sqlAllGenres.executeQuery("SELECT * FROM Genre;");
+				
+				if (!resultsAllGenres.isBeforeFirst() ) {    
+				    System.out.println("No genres"); 
+				}
 			}
 			
 			if (request.getSession().getAttribute("activeUserID") != null) {  
@@ -117,10 +147,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-	<title>Profile</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<title>Profile</title>
     <script>
 
         function checkForNewProject()
@@ -144,108 +175,200 @@
 			</div>
 		</div> 
 	</div> 
-	
+
 	<%
 		// Need this attribute to be set by Login servlet 
 		if (request.getSession().getAttribute("activeUser") != null) {
 			if (self) {
-	%>	
-	
+	%>
+
 	<div class="row justify-content-center">
 		<h2 class="col-12 mt-2 mb-2 text-center">Your Profile</h2>
 	</div>
+	<div class="container">
 		<div class="row justify-content-center">
 			<div class="col-6 mt-2 mb-2 text-center">
 				<h4>Preferred Genres</h4>
-			<%
-			while (resultsGenres != null && resultsGenres.next()) {
-				String genre = resultsGenres.getString("Genre.genre");
-			%>
-			<div class="row justify-content-center">	
-				<%= genre %>
-			</div>
-			<%
+				<%
+				if (type.compareTo("genre") == 0) {
+				%>
+				<form action="ProfileConfirmation.jsp?type=genre" method="POST">
+					<%
+					if (resultsAllGenres != null) {
+						while (resultsAllGenres != null && resultsAllGenres.next()) {
+							int genreID = resultsAllGenres.getInt("genreID");
+							String genre = resultsAllGenres.getString("genre");
+					%>
+					<div class="row">
+						<div class="col-auto mb-2">
+							<%= genre %>
+						</div>
+						<div class="col-auto form-check">
+							<input class="form-check-input position-static" type="checkbox"
+								id="blankCheckbox" name="addGenre" value="<%= genreID %>"
+								aria-label="...">
+						</div>
+					</div>
+					<%
+						}
+					}
+					else {
+						%>
+					<div class="row">
+						<div class="col-auto mb-4">None available.</div>
+					</div>
+					<%
+							}
+					%>
+
+					<div class="row mt-2 mb-2">
+						<div class="col">
+							<br></br>
+							<button type="submit" class="btn btn-dark">Save</button>
+							<a href="${header.referer}" role="button" class="btn btn-light">Cancel</a>
+						</div>
+					</div>
+				</form>
+				<%
+				} 
+				else {
+					while (resultsGenres != null && resultsGenres.next()) {
+						String genre = resultsGenres.getString("Genre.genre");
+					%>
+				<div class="row justify-content-center">
+					<%= genre %>
+				</div>
+				<%
+						}
+					%>
+				<a href="ProfileEdit.jsp?type=genre" class="btn btn-dark mt-4 mb-2">Edit</a>
+				<% 
 				}
-			%>
-			<a href="ProfileEdit.jsp?type=genre" class="btn btn-dark mt-4 mb-2">Edit</a>
-		</div>
-			<div class="col-6 mt-2 mb-2 text-center">
-				<h4>Preferred Positions</h4>
-			<%
-			while (resultsPositions != null && resultsPositions.next()) {
-				String position = resultsPositions.getString("Position.position");
-			%>
-			<div class="row justify-content-center">	
-				<%= position %>
-			</div>
-			<%
+				%>
+				</div>
+				<div class="col-6 mt-2 mb-2 text-center">
+					<h4>Preferred Positions</h4>
+					<%
+				if (type.compareTo("position") == 0) {
+				%>
+					<form action="ProfileConfirmation.jsp?type=position" method="POST">
+						<%
+					if (resultsAllPositions != null) {
+						while (resultsAllPositions != null && resultsAllPositions.next()) {
+							int positionID = resultsAllPositions.getInt("positionID");
+							String position = resultsAllPositions.getString("position");
+					%>
+						<div class="row">
+							<div class="col-auto mb-2">
+								<%= position %>
+							</div>
+							<div class="col-auto form-check">
+								<input class="form-check-input position-static" type="checkbox"
+									id="blankCheckbox" name="addPosition" value="<%= positionID %>"
+									aria-label="...">
+							</div>
+						</div>
+						<%
+						}
+					}
+					else {
+						%>
+						<div class="row">
+							<div class="col-auto mb-4">None available.</div>
+						</div>
+						<%
+							}
+					%>
+
+						<div class="row mt-2 mb-2">
+							<div class="col">
+								<br></br>
+								<button type="submit" class="btn btn-dark">Save</button>
+								<a href="${header.referer}" role="button" class="btn btn-light">Cancel</a>
+							</div>
+						</div>
+					</form>
+					<%
+				} 
+				else {
+					while (resultsGenres != null && resultsGenres.next()) {
+						String genre = resultsGenres.getString("Genre.genre");
+					%>
+					<div class="row justify-content-center">
+						<%= genre %>
+					</div>
+					<%
+						}
+					%>
+					<a href="ProfileEdit.jsp?type=position" class="btn btn-dark mt-4 mb-2">Edit</a>
+					<% 
 				}
-			%>
-			<a href="ProfileEdit.jsp?type=position" class="btn btn-dark mt-4 mb-2">Edit</a>
+				%>
+				</div>
+			</div>
 		</div>
 	</div>
 
 	<hr>
 	<br>
-	
+
 	<%
 		}
 		else {
 	%>
-		<div class="row justify-content-center">
-			<h2 class="col-12 mt-2 mb-2 text-center"><%=name %> Profile</h2>
-		</div>
+	<div class="row justify-content-center">
+		<h2 class="col-12 mt-2 mb-2 text-center"><%=name %>
+			Profile
+		</h2>
+	</div>
 	<%
 		}
 	%>
-	
+
 	<div class="container">
 		<div class="row justify-content-center">
 			<h3 class="col-12 mt-2 mb-2 text-center">In-Progress Projects</h3>
 		</div>
 		<div class="row justify-content-center">
 			<div class="col-auto">
-			<%
+				<%
 				if (hasInProgress) {
 			%>
 				<table class="table table-hover table-responsive mt-4">
-						<thead>
-							<tr>
-								<th>Project Name</th>
-								<th>Role</th> 
-							</tr>
-						</thead>
-						<tbody>
+					<thead>
+						<tr>
+							<th>Project Name</th>
+							<th>Role</th>
+						</tr>
+					</thead>
+					<tbody>
 						<% while (resultsInProgress != null && resultsInProgress.next()) {
 							int projectID = resultsInProgress.getInt("projectID");
 							String title = resultsInProgress.getString("Project.title");
 							String position = resultsInProgress.getString("Position.position");
 						%>
-							<tr>
-								<td>
-									<a href="Details.jsp?projectID=<%= projectID %>"><%= title %></a>
-								</td>
-								<td>
-									<%= position %>
-								</td>
-							</tr>
-								<%
+						<tr>
+							<td><a href="Details.jsp?projectID=<%= projectID %>"><%= title %></a>
+							</td>
+							<td><%= position %></td>
+						</tr>
+						<%
 								}
 								%>
-						</tbody>
-					</table>
-					<%
+					</tbody>
+				</table>
+				<%
 					}
 				else {
 					%>
-					None
-					<%
+				None
+				<%
 				}
 			%>
 			</div>
 		</div>
 	</div>
-		
+
 	<hr>
 	<br>
 
@@ -255,75 +378,71 @@
 		</div>
 		<div class="row justify-content-center">
 			<div class="col-auto">
-			<%
+				<%
 				if (hasAppliedTo) {
 			%>
 				<table class="table table-hover table-responsive mt-4">
-						<thead>
-							<tr>
-								<th>Project Name</th>
-								<th>Role</th>
-								<% if (self) {
+					<thead>
+						<tr>
+							<th>Project Name</th>
+							<th>Role</th>
+							<% if (self) {
 								%>
-								<th></th>
-								<%
+							<th></th>
+							<%
 								}
 								%>
-							</tr>
-						</thead>
-						<tbody>
+						</tr>
+					</thead>
+					<tbody>
 						<% while (resultsAppliedTo != null && resultsAppliedTo.next()) {
 							int projectID = resultsAppliedTo.getInt("projectID");
 							String title = resultsAppliedTo.getString("Project.title");
 							String position = resultsAppliedTo.getString("Position.position");
 						%>
-							<tr>
-								<td>
-									<a href="Details.jsp?projectID=<%= projectID %>"><%= title %></a>
-								</td>
-								<td>
-									<%= position %>
-								</td>
-								<% if (self) {
+						<tr>
+							<td><a href="Details.jsp?projectID=<%= projectID %>"><%= title %></a>
+							</td>
+							<td><%= position %></td>
+							<% if (self) {
 								%>
-								<td>
-									<!-- <a href=""class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to withdraw your application?');">
-									Cancel </a> -->
-								</td>
-								<%
+							<td><!-- <a href="" class="btn btn-outline-danger"
+								onclick="return confirm('Are you sure you want to withdraw your application?');">
+									Cancel </a> --></td>
+							<%
 									}
 								%>
-							</tr>
-								<%
+						</tr>
+						<%
 								}
 								%>
-						</tbody>
-					</table>
-					<%
+					</tbody>
+				</table>
+				<%
 					}
 				else {
 					%>
-					None
-					<%
+				None
+				<%
 				}
 			%>
-				</div>
 			</div>
+		</div>
 	</div>
 
 	<%
 	}
 	else {
 	%>
-		<div class="row justify-content-center">
-			<h2 class="col-12 mt-2 mb-2 text-center">You are not logged in</h2>
-		</div>
+	<div class="row justify-content-center">
+		<h2 class="col-12 mt-2 mb-2 text-center">You are not logged in</h2>
+	</div>
 	<%
 		}
-	%> 
+	%>
 
 </body>
-	<%
+<%
 	} catch (SQLException sqle) {
 		System.out.println("SQLE ERROR" + sqle.getMessage());
 		sqle.printStackTrace();

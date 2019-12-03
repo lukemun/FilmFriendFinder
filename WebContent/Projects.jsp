@@ -6,19 +6,20 @@
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.SQLException" %>
+<%@ page import="java.util.ArrayList" %>
+
 
 	<%
 		Connection conn = null;
 		Statement sqlGenres = null;
 		Statement sqlDates = null;
-		Statement sqlRatings = null;
 		ResultSet resultsGenres = null;
 		ResultSet resultsDates = null;
-		ResultSet resultsRatings = null;
 		
 		PreparedStatement sqlSearch = null;
 		ResultSet resultsSearch = null;
 		
+		ArrayList<String> titles = new ArrayList<String>();
 		int numResults = 0;
 		
 		try  {
@@ -46,21 +47,14 @@
 			    System.out.println("No dates"); 
 			} 
 			
-			sqlRatings = conn.createStatement();
-			sql = "SELECT DISTINCT avgRating FROM Project ORDER BY avgRating DESC;";
-			resultsRatings = sqlRatings.executeQuery(sql);
-						
-			if (!resultsRatings.isBeforeFirst() ) {    
-			    System.out.println("No ratings"); 
-			} 
 			
-			sqlSearch = conn.prepareStatement("SELECT Project.title, Project.created, Genre.genre, Project.avgRating, Project.summary " 
+			sqlSearch = conn.prepareStatement("SELECT DISTINCT Project.projectID, Project.title, Project.created, Genre.genre, Project.summary " 
 											+ "FROM Project " 
 											+ "JOIN ProjectToGenre " 
 											+ "ON Project.projectID = ProjectToGenre.projectID "
 											+ "JOIN Genre " 
 											+ "ON Genre.genreID = ProjectToGenre.genreID "
-											+ "WHERE Genre.genreID LIKE ? AND Project.created LIKE ? AND Project.avgRating >= ?");
+											+ "WHERE Genre.genreID LIKE ? AND Project.created LIKE ?");
 			String id = "%";
 			if (request.getParameter("genre") != null && !request.getParameter("genre").isEmpty()) {
 				id = request.getParameter("genre");
@@ -69,14 +63,9 @@
 			if (request.getParameter("date") != null && !request.getParameter("date").isEmpty()) {
 				date = request.getParameter("date");
 			}
-			int avgRating = 0;
-			if (request.getParameter("popularity") != null && !request.getParameter("popularity").isEmpty()) {
-				avgRating = Integer.parseInt(request.getParameter("popularity"));
-			}
 			
 			sqlSearch.setString(1, id);
 			sqlSearch.setString(2, date);
-			sqlSearch.setInt(3, avgRating);
 			
 			resultsSearch = sqlSearch.executeQuery();
 						
@@ -93,10 +82,34 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>	
 	<title>Available Film Projects</title>
+	
+    <script>
+
+        function checkForNewProject()
+        {
+            var source = new EventSource('http://localhost:8080/FilmFriendFinder/SendNotification');  
+            source.onmessage=function(event) {
+                document.getElementById("result").innerHTML=event.data + "<br />";
+                $("#result").show(); 
+                $("#result").hide().slideDown().delay(10000).fadeOut();
+            };
+        }
+    </script>
 </head>
-<body>
+
+<body onload="checkForNewProject()">
 	<%@ include file="Navbar.jsp" %>
+	<div class="container-fluid">
+		<div class="row justify-content-end">
+			<div class="col-auto mt-2-mb-2">
+				<output id ="result" class="font-weight-bold text-success mt-3 mb-3"> </output>
+			</div>
+		</div> 
+	</div> 
 	<div class="container">
 		<div class="row justify-content-center">
 			<h3 class="col-12 mt-2 mb-2 text-center">Available Film Projects</h3>
@@ -109,10 +122,9 @@
 	</div> 
 	
 		<div class="container">
-		<!-- TODO: Set search servlet -->
 		<form action="Projects.jsp" method="GET">
 			<div class="form-group row justify-content-center align-items-center">
-				<div class="col-sm-3 mt-1">
+				<div class="col-auto mt-1">
 					<select name="genre" id="genre-id" class="form-control">
 						<option value="" selected>--Genre--</option>
 						<%
@@ -127,7 +139,7 @@
 					</select>				
 				</div>
 				<label for="date-id" class="d-none"></label>
-				<div class="col-sm-3 mt-1">
+				<div class="col-auto mt-1">
 					<select name="date" id="date-id" class="form-control">
 						<option value="" selected>--Date Posted--</option>
 						<%
@@ -140,23 +152,7 @@
 						%>
 					</select>
 				</div>
-				<label for="popularity-id" class="d-none"></label>
-				<div class="col-sm-3 mt-1">
-					<select name="popularity" id="popularity-id" class="form-control">
-						<option value="" selected>--Popularity--</option>
-						<%
-						while (resultsRatings != null && resultsRatings.next()) {
-							int rating = resultsRatings.getInt("avgRating");
-						%>	
-						<option value="<%= rating %>" class="stars-container stars-<%= rating * 20 %>">
-							★★★★
-						</option>
-						<%
-							}
-						%>
-					</select>
-				</div>
-				<div class="col-sm-1 mt-2 text-center">
+				<div class="col-auto mt-2 text-center">
 					<button type="submit" class="btn btn-dark">Go</button>
 				</div>
 			</div>
@@ -173,69 +169,69 @@
 	
 	<%
 		while (resultsSearch != null && resultsSearch.next()) {
+			String projectID = resultsSearch.getString("Project.projectID");
 			String title = resultsSearch.getString("Project.title");
-			String datePosted = resultsSearch.getString("Project.created");
-			String genre = resultsSearch.getString("Genre.genre");
-			int rating = resultsSearch.getInt("Project.avgRating");
-			String summary = resultsSearch.getString("Project.summary");
-	%>	
+				if (!titles.contains(title)) {
+					
+				String datePosted = resultsSearch.getString("Project.created");
+				ArrayList<String> genres = new ArrayList<String>();
+				
+				PreparedStatement sqlProjectGenres = null;
+				ResultSet resultsProjectGenres = null;
+				sqlProjectGenres = conn.prepareStatement("SELECT Genre.genre FROM Genre "
+												+ "JOIN ProjectToGenre " 
+												+ "ON Genre.genreID = ProjectToGenre.genreID "
+												+ "JOIN Project " 
+												+ "ON Project.projectID = ProjectToGenre.projectID "
+												+ "WHERE Project.projectID = ?");
+				sqlProjectGenres.setInt(1, Integer.parseInt(projectID));
+				resultsProjectGenres = sqlProjectGenres.executeQuery();
+				
+				while (resultsProjectGenres.next()) {
+					genres.add(resultsProjectGenres.getString("Genre.genre"));
+				}
 	
-	<!-- TODO: Update with dynamic results -->
-	<div class="container">
-		<div class="row mt-2">
-			<div class="col-12">
-				<h5>
-					<a class="font-weight-bold text-dark" href="Details.jsp"><%= title %></a>
-				</h5>
+				String summary = resultsSearch.getString("Project.summary");
+		%>	
+		
+		<div class="container">
+			<div class="row mt-2">
+				<div class="col-12">
+					<h5>
+						<a class="font-weight-bold text-dark" href="Details.jsp?projectID=<%= projectID %>"><%= title %></a>
+					</h5>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12">
+					<strong>Date Posted:</strong> <%= datePosted %>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-auto">
+				<strong>Genre Tags:</strong>
+				<%
+					for (int i = 0; i < genres.size(); i++) {
+				%>
+					 <%= genres.get(i) %> 
+				 <%
+				 }
+				 %>
+				</div>
+			</div>
+			<div class="row mt-1 mb-5">
+				<div class="col-12 font-italic">
+					<%= summary %>
+				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-12">
-				<strong>Date Posted:</strong> <%= datePosted %>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-auto">
-				<strong>Genre Tags:</strong> <%= genre %>
-			</div>
-			<div class="col-auto">
-				<strong>Rating:</strong> <span class="stars-container stars-<%= rating %>">★★★★★</span>
-				<div id="stars-value"><%= rating %></div>
-			</div>
-		</div>
-		<div class="row mt-1 mb-5">
-			<div class="col-12 font-italic">
-				<%= summary %>
-			</div>
-		</div>
-	</div>
-	
-	<!-- TODO: Show all results or implement pagination -->
-	<div class="col-12 mt-4">
-		<nav aria-label="Page navigation example">
-			<ul class="pagination justify-content-center">
-				<li class="page-item">
-					<a class="page-link text-dark" href="">First</a>
-				</li>
-				<li class="page-item">
-					<a class="page-link text-dark" href="">Previous</a>
-				</li>
-				<li class="page-item active">
-					<a class="page-link" href="">1</a>
-				</li>
-				<li class="page-item">
-					<a class="page-link text-dark" href="">Next</a>
-				</li>
-				<li class="page-item">
-					<a class="page-link text-dark" href="">Last</a>
-				</li>
-			</ul>
-		</nav>
-	</div>
-
+				<%
+				titles.add(title);
+				}
+			}
+		%>
 </body>
 	<%
-		}
 	} catch (SQLException sqle) {
 		System.out.println("SQLE ERROR" + sqle.getMessage());
 		sqle.printStackTrace();
@@ -258,59 +254,5 @@
 		}
 	}
 	%>
-<style>
-
-	.stars-container {
-	  position: relative;
-	  display: inline-block;
-	  color: transparent;
-	}
 	
-	.stars-container:before {
-	  position: absolute;
-	  top: 0;
-	  left: 0;
-	  content: '★★★★★';
-	  color: lightgray;
-	}
-	
-	.stars-container:after {
-	  position: absolute;
-	  top: 0;
-	  left: 0;
-	  content: '★★★★★';
-	  color: black;
-	  overflow: hidden;
-	}
-	
-	.stars-0:after { width: 0%; }
-	.stars-10:after { width: 10%; }
-	.stars-20:after { width: 20%; }
-	.stars-30:after { width: 30%; }
-	.stars-40:after { width: 40%; }
-	.stars-50:after { width: 50%; }
-	.stars-60:after { width: 60%; }
-	.stars-70:after { width: 70%; }
-	.stars-80:after { width: 80%; }
-	.stars-90:after { width: 90%; }
-	.stars-100:after { width: 100; }
-	
-	#stars-value {
-		display: none;
-	}
-	
-	.pagination > .active > a
-	{
-	    color: white;
-	    background-color: black !Important;
-	    border: solid 1px black !Important;
-	}
-	
-	.pagination > .active > a:hover
-	{
-	    background-color: grey !Important;
-	    border: solid 1px grey;
-	}
-
-</style>
 </html>

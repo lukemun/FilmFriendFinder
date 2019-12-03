@@ -3,6 +3,7 @@
 <%
 	if (request.getSession().getAttribute("loggedIn") != null) {  
 		request.getSession().setAttribute("activeUser", null);
+		request.getSession().setAttribute("activeUserID", null);
 		request.getSession().setAttribute("loggedIn", null);
 	}
 %>

@@ -23,6 +23,9 @@
 		PreparedStatement sqlPositions = null;
 		ResultSet resultsPositions = null;
 		
+		Statement sqlAllPositions = null;
+		ResultSet resultsAllPositions = null;
+		
 		PreparedStatement sqlOwner = null;
 		ResultSet resultsOwner = null;
 		
@@ -31,9 +34,9 @@
 		
 		PreparedStatement sqlProjectAccepted = null;
 		ResultSet resultsProjectAccepted = null;
-		
-		ArrayList<String> titles = new ArrayList<String>();
 				
+		ArrayList<String> titles = new ArrayList<String>();
+
 		try  {
 			Class.forName("com.mysql.jdbc.Driver");  
 			conn = DriverManager.getConnection("jdbc:mysql://google/fff"
@@ -66,8 +69,14 @@
 			 										+ "ON ProjectToPosition.projectID = Project.projectID " 
 			 										+ "WHERE Project.projectID = ?");
 			 	sqlPositions.setInt(1, id);
-
 		 		resultsPositions = sqlPositions.executeQuery();
+
+				sqlAllPositions = conn.createStatement();
+				resultsAllPositions = sqlPositions.executeQuery("SELECT * FROM Position;");
+				
+				if (!resultsAllPositions.isBeforeFirst() ) {    
+				    System.out.println("No positions"); 
+				}
 				
 				if (request.getSession().getAttribute("activeUser") != null) {
 					
@@ -130,7 +139,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
-	<title>Details</title>
+	<title>Edit Positions</title>
     <script>
 
         function checkForNewProject()
@@ -187,7 +196,7 @@
 				}
 	
 				String summary = resultsSearch.getString("Project.summary");
-	%>	
+	%>
 	<div class="container">
   		<div class="row justify-content-around">
 			<div class="col-auto">
@@ -226,6 +235,7 @@
 				}
 			}
 		%>
+		
 				<div class="row mt-2 mb-2">
 					<div class="col-12">
 						<h5 class="">
@@ -234,21 +244,20 @@
 					</div>
 				</div>
 				<div class="container">
-				<form action="ApplicationConfirmation.jsp?projectID=<%=id %>" method="POST">
+				<form action="EditConfirmation.jsp?projectID=<%= id %>" method="POST">
 				<%
-				if (resultsPositions != null) {
+				if (resultsAllPositions != null) {
 					posAvailable = true;
-					while (resultsPositions != null && resultsPositions.next()) {
-						int positionID = resultsPositions.getInt("positionID");
-						String position = resultsPositions.getString("position");
+					while (resultsAllPositions != null && resultsAllPositions.next()) {
+						int positionID = resultsAllPositions.getInt("positionID");
+						String position = resultsAllPositions.getString("position");
 				%>
-
 				<div class="row">
-					<div class="col-auto mb-4">
+					<div class="col-auto mb-2">
 						<%= position %>
 					</div>
 					<div class="col-auto form-check">
-					  <input class="form-check-input position-static" type="checkbox" id="blankCheckbox" name="applyTo" value="<%= positionID %>" aria-label="...">
+					  <input class="form-check-input position-static" type="checkbox" id="blankCheckbox" name="addPosition" value="<%= positionID %>" aria-label="...">
 					</div>
 				</div>
 				<%
@@ -265,31 +274,19 @@
 						}
 				%>
 				
-			<div class="row mt-2 mb-2">
+				<div class="row mt-2 mb-2">
 					<div class="col">
-						<%
-							if (request.getSession().getAttribute("activeUser") == null && posAvailable) {
-						%>	
-			  				<div class="text-danger">Please login to apply to a project.</div>
-						<%
-							}
-							else if (!owner && posAvailable){
-						%>
-			  				<button type="submit" class="btn btn-dark">Apply</button>
-						<%
-							}
-							else if (owner){
-						%>
-			  				<a href="EditProject.jsp?projectID=<%= id %>"class="btn btn-dark">Edit</a>
-						<%
-							}
-						%>
+				  		<br></br><button type="submit" class="btn btn-dark">Save</button>
+	  					<a href="${header.referer}" role="button" class="btn btn-light">Cancel</a>
 					</div>
 				</div>
-				</form>
+			</form>
 			</div>
 		</div>
-
+		
+		<!-- TODO: Only show if project owner? -->
+		<!-- Add approve/reject buttons -->
+		<!-- Add links to users profile -->
 		<%
 			if (owner) {
 		%>	
@@ -386,6 +383,45 @@
 	}
 	%>
 <style>
+
+	.stars-container {
+	  position: relative;
+	  display: inline-block;
+	  color: transparent;
+	}
+	
+	.stars-container:before {
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  content: '★★★★★';
+	  color: lightgray;
+	}
+	
+	.stars-container:after {
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  content: '★★★★★';
+	  color: black;
+	  overflow: hidden;
+	}
+	
+	.stars-0:after { width: 0%; }
+	.stars-10:after { width: 10%; }
+	.stars-20:after { width: 20%; }
+	.stars-30:after { width: 30%; }
+	.stars-40:after { width: 40%; }
+	.stars-50:after { width: 50%; }
+	.stars-60:after { width: 60%; }
+	.stars-70:after { width: 70%; }
+	.stars-80:after { width: 80%; }
+	.stars-90:after { width: 90%; }
+	.stars-100:after { width: 100; }
+	
+	#stars-value {
+		display: none;
+	}
 	
 	.fa-check {
     	color: green;
