@@ -90,28 +90,30 @@
 	    		<div class="invalid-feedback">Please confirm your password.</div>
 	  		</div>
 	  		<div class="form-group">
-				<select name="position" id="position-id" class="form-control selectpicker" multiple>
-					<option value="" disabled selected>--Position--</option>
-					<%
-					while (resultsPositions != null && resultsPositions.next()) {
-						int positionID = resultsPositions.getInt("positionID");
-						String position = resultsPositions.getString("position");
-					%>	
-					<option value="<%= positionID %>"><%= position %></option>
-					<%
-						}
-					%>
-					</select>				
-				</div>
-	  		<div class="form-group">
+  				<label for="genre">Genre(s) You're interested in</label>
 				<select name="genre" id="genre-id" class="form-control selectpicker" multiple>
-					<option value="" disabled selected>--Genre--</option>
+					<option value="" disabled>--Genre--</option>
 					<%
 					while (resultsGenres != null && resultsGenres.next()) {
 						int genreID = resultsGenres.getInt("genreID");
 						String genre = resultsGenres.getString("genre");
 					%>	
 					<option value="<%= genreID %>"><%= genre %></option>
+					<%
+						}
+					%>
+					</select>				
+				</div>
+	  		<div class="form-group">
+  				<label for="position">Positions(s) You're interested in</label>
+				<select name="position" id="position-id" class="form-control selectpicker" multiple>
+					<option value="" disabled>--Position--</option>
+					<%
+					while (resultsPositions != null && resultsPositions.next()) {
+						int positionID = resultsPositions.getInt("positionID");
+						String position = resultsPositions.getString("position");
+					%>	
+					<option value="<%= positionID %>"><%= position %></option>
 					<%
 						}
 					%>

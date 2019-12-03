@@ -33,9 +33,6 @@
 		ResultSet resultsUserExists = null;
 		ResultSet resultsNewUserID = null;
 		
-		PreparedStatement sqlGenre = null;
-		PreparedStatement sqlPosition = null;
-		
 		try  {
 			Class.forName("com.mysql.jdbc.Driver");  
 			conn = DriverManager.getConnection("jdbc:mysql://google/fff"
@@ -69,18 +66,31 @@
 					resultsNewUserID = sqlNewUserID.executeQuery();
 					if (resultsNewUserID.next()) {
 						// Need to add genres/positions
+						String genres[] = request.getParameterValues("genre");
+						for (int i = 0; i < genres.length; i++) {
+							PreparedStatement sqlGenre = conn.prepareStatement("INSERT INTO UserToGenre (userID, genreID) "
+									+ "VALUES (?, ?)");
+							sqlGenre.setInt(1, resultsNewUserID.getInt("userID"));
+							sqlGenre.setInt(2, Integer.parseInt(genres[i]));
+							row = sqlGenre.executeUpdate();
+							
+							if (row == 0) {
+								error += "Unable to add genre " + (genres[i]) + ".\n";
+							}
+						} 
 						
-						sqlGenre = conn.prepareStatement("INSERT INTO UserToGenre (userID, genreID) " 
-								+ "VALUES (?, ?)");
-						sqlGenre.setInt(1, resultsNewUserID.getInt("userID"));
-						sqlGenre.setInt(2, Integer.parseInt(request.getParameter("genre")));
-						row = sqlGenre.executeUpdate();
-						
-						sqlPosition = conn.prepareStatement("INSERT INTO UserToPosition (userID, positionID) "
-								+ "VALUES (?, ?)");
-						sqlPosition.setInt(1, resultsNewUserID.getInt("userID"));
-						sqlPosition.setInt(2, Integer.parseInt(request.getParameter("position")));
-						row = sqlPosition.executeUpdate();
+						String positions[] = request.getParameterValues("position");
+						for (int i = 0; i < positions.length; i++) {
+							PreparedStatement sqlPositions = conn.prepareStatement("INSERT INTO UserToPosition (userID, positionID) "
+									+ "VALUES (?, ?)");
+							sqlPositions.setInt(1, resultsNewUserID.getInt("userID"));
+							sqlPositions.setInt(2, Integer.parseInt(positions[i]));
+							row = sqlPositions.executeUpdate();
+							
+							if (row == 0) {
+								error += "Unable to add position " + (positions[i]) + ".\n";
+							}
+						} 
 						
 						result = "Accounted created and logged in!";
 						request.getSession().setAttribute("loggedIn", true);
