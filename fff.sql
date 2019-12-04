@@ -44,9 +44,10 @@ CREATE TABLE IF NOT EXISTS `fff`.`Project` (
   `numRatings` INT NULL,
   `sumRatings` INT NULL,
   `avgRating` INT NULL,
-  `created` DATE NOT NULL,
+  `created` VARCHAR(128) NOT NULL,
   PRIMARY KEY (`projectID`),
   INDEX `fk_Project_User1_idx` (`ownerID` ASC) ,
+  UNIQUE INDEX `title_UNIQUE` (`title` ASC) ,
   CONSTRAINT `fk_Project_User1`
     FOREIGN KEY (`ownerID`)
     REFERENCES `fff`.`User` (`userID`)
@@ -82,7 +83,8 @@ INSERT INTO `Position` (`positionID`, `position`) VALUES
 (11, 'Actor'),
 (12, 'Actress'),
 (13, 'Music Supervisor'),
-(14, 'Other');
+(14, 'Other'),
+(15, 'Owner');
 
 -- -----------------------------------------------------
 -- Table `fff`.`UserToPosition`
@@ -115,7 +117,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `fff`.`ProjectToPosition` ;
 
 CREATE TABLE IF NOT EXISTS `fff`.`ProjectToPosition` (
-  `ptpID` INT NOT NULL,
+  `ptpID` INT NOT NULL AUTO_INCREMENT,
   `projectID` INT NOT NULL,
   `positionID` INT NOT NULL,
   PRIMARY KEY (`ptpID`),
@@ -232,6 +234,7 @@ CREATE TABLE IF NOT EXISTS `fff`.`ProjectUsers` (
   `userID` INT NOT NULL,
   `projectID` INT NOT NULL,
   `positionID` INT NOT NULL,
+  `accepted` INT NULL,
   PRIMARY KEY (`puID`),
   INDEX `fk_ProjectUsers_User1_idx` (`userID` ASC) ,
   INDEX `fk_ProjectUsers_Project1_idx` (`projectID` ASC) ,
